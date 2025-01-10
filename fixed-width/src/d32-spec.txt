@@ -1,0 +1,11 @@
+WAIT IDEA
+1 bit (- or no)
+1 bit (/ or no)
+7 bit exponand (0-127 1s to follow)
+(implicit 0)
+23 bit mantissa (1s and 0s, trailing zeros ignored, implicit 0oo following)
+^ hmmmm no i don't think spanning orders of magnitude like this is gonna work well
+if you really need to span that many orders of magnitude you're not gonna be able to do precise computation
+which is what this is all about
+ok is there a way to make (b/n)lfts compatible with spanning orders of magnitude?
+omit the # of 1s they have in common in their exponand?

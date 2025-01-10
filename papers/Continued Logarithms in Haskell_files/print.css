@@ -1,0 +1,26 @@
+@import url('style.css');
+
+header,
+footer,
+a.feed-icon
+{
+  display: none;
+}
+
+body
+{
+  margin-left: 0;
+  margin-right: auto;
+}
+
+*, a, a:visited
+{
+  border-color: black;
+  color: black;
+  background-color: white;
+}
+
+a:after
+{
+  content: " [ " attr(href) " ]";
+}

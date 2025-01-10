@@ -1,0 +1,48 @@
+Continued Fraction Arithmetic (1978, Bill Gosper)
+https://www.tweedledum.com/rwg/cfup.htm <=== THE FOUNDATIONAL TEXT
+
+Speculatively Redundant Continued Logarithm Representation (2010, Brabec)
+https://ieeexplore.ieee.org/document/5467052 <=== important innovation for arbitrary-precision clogs
+
+Hardware Implementation of Continued Logarithm Arithmetic (2006, Brabec)
+https://ieeexplore.ieee.org/document/4402399 <=== [TODO: read this thoroughly, it seems very important]
+
+Continued fractions for high-speed and high-accuracy computer arithmetic (1983)
+https://ieeexplore.ieee.org/document/6158099 <=== several blft units in parallel shoveling terms through (no clogs)
+
+On the Use of Continued Fractions for Digital Computer Arithmetic (1977)
+(they didn't find anything; not interesting)
+https://ieeexplore.ieee.org/document/1674903
+
+Continued Logarithm Implementations of Log etc (in Haskell)
+https://mathr.co.uk/web/continued-logarithm.html <== first instance of log/exp/sin/etc functions
+
+TODO plot binary continued logarithms on a tree (add -/ for topograph??)
+1 is like "go this direction" 0 is like "switch which direction is 'this'"
+something like:
+1 0 0 1 1 0 0 1
+ 1   0   0   1 <== wait no we can have -/ hmmm... doesn't look exactly like conway's topograph
+   -       /
+       x
+   0       1
+ 1   0   0   1
+1 0 0 1 1 0 0 1
+ 
+TWO APPROACHES:
+- fixed width (32 & 64 bit clogs)
+- arbitrary width clog streams (made of individual fixed-width words?)
+
+ANALOGS FOR FIXED-WIDTH CLOGS: fixed-radix numbers; floats
+can't really be fairly benchmarked against hardware floats
+that said maybe i could try to (or emulate hardware floats w/ints)
+
+ANALOGS FOR ARBITRARY-WIDTH CLOGS: rationals, interval arithmetic, and arbitrary-length floats
+BENCHMARK AGAINST: GMP & MPFR
+
+INVESTIGATE AND ANSWER:
+- the amount and distribution of precision we get for the fixed and arbitrary width stuff
+- the memory requirements of the blfts/lfts for arbitrary computations (as against both arbitrary-width floats and rationals)
+- how/whether to expose (b/n)lfts in a theoretical fixed-width clog solution --- function like simd registers?
+- the algorithms for and algorithmic complexity of everything fixed and arbitrary width clogs would need to reach parity with their equivalents
+- what theoretical hardware solutions could look like for fixed width or arbitrary width solutions
+

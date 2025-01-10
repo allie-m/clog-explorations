@@ -1,0 +1,208 @@
+body
+{
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 0;
+  padding-left: 5px;
+  padding-right: 5px;
+  max-width: 720px;
+}
+
+main
+{
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-top: 5px solid;
+  border-bottom: 5px solid;
+}
+
+header nav
+{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+header nav ol,
+footer nav ol
+{
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+header nav ol li,
+footer nav ol li
+{
+  margin-right: 20px;
+  padding: 0;
+  display: inline-block;
+}
+
+nav#toc
+{
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 5px solid;
+}
+
+nav#toc ol,
+nav#toc ol li
+{
+  margin: 0;
+  border-width: 0;
+  padding: 0;
+  display: inline;
+  line-height: 200%;
+}
+
+.index ol
+{
+  display: block;
+  padding: 0;
+}
+
+.index ol li
+{
+  display: block;
+}
+
+#Topics ol li
+{
+  margin-right: 20px;
+  padding: 0;
+  display: inline-block;
+}
+
+.date
+{
+  margin-right: 20px;
+  font-size: 67%;
+  font-family: monospace, monospace;
+}
+
+h1
+{
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-top: 0;
+  font-weight: bold;
+}
+
+h2, h3, h4, h5, h6
+{
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-top: 1px solid;
+  font-weight: bold;
+}
+
+h1 { font-size: 200%; }
+h2 { font-size: 175%; }
+h3 { font-size: 150%; }
+h4 { font-size: 140%; }
+h5 { font-size: 130%; }
+h6 { font-size: 120%; }
+
+a
+{
+  text-decoration: underline;
+}
+
+.feed-icon
+{
+  text-decoration: none;
+  float: right;
+}
+
+p
+{
+  margin-top: 20px;
+  margin-bottom: 20px;
+  line-height: 200%;
+}
+
+html
+{
+  font-family: sans-serif;
+}
+
+code
+{
+  font-family: monospace, monospace;
+}
+
+audio,
+.wide
+{
+  width: 100%;
+}
+
+.pixelart
+{
+  -ms-interpolation-mode: nearest-neighbor;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+pre
+{
+  overflow: scroll;
+}
+
+pre.wrapped
+{
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+table
+{
+  width: 100%;
+}
+
+/* default light theme */
+
+*
+{
+  color: black;
+  background-color: white;
+}
+
+a
+{
+  color: blue;
+  background-color: white;
+}
+
+a:visited
+{
+  color: purple;
+  background-color: white;
+}
+
+/* colours */
+
+@media (prefers-color-scheme: dark)
+{
+
+*
+{
+  color: white;
+  background-color: black;
+}
+
+a
+{
+  color: #0f0;
+  background-color: black;
+}
+
+a:visited
+{
+  color: #cc0;
+  background-color: black;
+}
+
+}

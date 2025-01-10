@@ -1,0 +1,100 @@
+CONTINUED LOGARITHMS
+================
+
+1 : ord
+0 : drec
+/ : rec
+- : neg
+
+MEMORY LAYOUT
+================
+2 bit foreword (most significant)
+    first bit is 1 (signifying a - term) or 0
+    second bit is 1 (signifying a / term) or 0
+30 bit word (least significant)
+    bits are treated as the analogous clog term
+    trailing zeros are flattened into 0oo
+    so that 01100000 becomes the clog 0110oo
+IMPORTANT NOTE:
+    01_0000[...] is treated as oo (value 0.0)
+    11_0000[...] is treated as "undefined", returned when a computation yields an undefined result
+    since /0oo and -/0oo are otherwise redundant with 0oo (1.0) and -0oo (-1.0),
+    alreaday represented by 00_0000[...] (1.0) and 10_0000[...] (-1.0)
+
+RANGE OF PRECISION
+================
+
+all values fall in the range [-2^30, 2^-30]
+smallest epsilon is 2^-30
+all integers between TODO and TODO are exactly representable
+all rationals with numerator i[TODO] and i[TODO] are exactly representable
+TODO: plot clog analog of stern-brocot tree
+
+FORMAT CONVERSION
+================
+
+Conversion to/from clog string
+======
+The value 0.0 (c32 representation 010000[...]) is represented by oo;
+Clog strings may begin with -, /, -/, 0, or 1
+[TODO: should we mandate a 0oo ending sequence? 0?]
+Every subsequent character must be either 0, 1, or oo.
+No terms may follow a oo.
+No other characters may appear.
+The last term must be either 0 or oo.
+
+FromRationalFlag (1 bit)
+======
+EXACT = 0
+    indicates that the rational was converted with no loss of precision
+TRUNCATED = 1
+    indicates that the output clog's word was not large enough
+    to store all the
+
+from_rational :: i32 _num_, i32 _den_ => c32, FromRationalFlag
+======
+modifies
+
+Conversion to/from decimal
+
+Conversion to/from f32/f64/float
+
+LFT / BLFT / NLFT TYPES + FUNCTIONS
+================
+
+FtCompletionFlags (2 bits)
+======
+if set to anything other than EXACT, indicates the computation was lossy
+EXACT         = 00
+    indicates that the FT was completed with no loss of precision
+    the matrix ends up oo
+TRUNCATED     = 01
+    indicates that the output clog's word was not large enough
+    to store all the terms the matrix is capable of egesting
+    the matrix does not end up oo
+MAT_SATURATED = 10
+    indicates that the precision of the matrix's integers was exceeded
+    the less significant bits of the matrix are unreliable
+
+m_lft32
+======
+128-bit type containing the 32-bit coefficients of the LFT
+    ax + b
+    ------
+    cx + d
+
+lft32 :: &m_lft32 _mat_, c32 _x_ => c32, FtCompletionFlags
+======
+ingests from _x_ into _mat_ and eagerly egests from _mat_ into output
+until _mat_ becomes oo, output word is exhausted, or _x_ is exhausted
+_mat_ will contain the coefficients after all terms are extracted
+
+returns UNDEFINED if the provided _mat_ is oo
+
+sets TRUNCATED if _mat_ had more terms to egest that output could not fit
+sets MAT_SATURATED if the precision of any of _mat_'s integers is exceeded
+
+performs between 0 and 30 ingestions depending on _mat_ and _x_
+performs between 0 and 30 egestions depending on _mat_ and _x_
+how many scales with the number of terms in _x_ and the size of _mat_'s values
+each ingestion and egestion is some combination of bitshift, integer add/sub, and swap
