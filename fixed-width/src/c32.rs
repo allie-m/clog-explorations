@@ -75,17 +75,12 @@ pub enum FromRationalFlag {
     TRUNCATED = 1,
 }
 
-#[allow(non_camel_case_types)]
-pub struct m_srat {
-    //
-}
-
-pub fn from_srat(mut num: i32, mut den: i32) -> (c32, FromRationalFlag) {
+pub fn from_rational64(mut num: i32, mut den: i32) -> (c32, FromRationalFlag, i32, i32) {
     if den == 0 {
-        return (consts::UNDEFINED, FromRationalFlag::EXACT);
+        return (consts::UNDEFINED, FromRationalFlag::EXACT, num, den);
     }
     if num == 0 {
-        return (consts::ZERO, FromRationalFlag::EXACT);
+        return (consts::ZERO, FromRationalFlag::EXACT, num, den);
     }
     let mut out = c32(0);
     let mut index = 0;
@@ -104,7 +99,7 @@ pub fn from_srat(mut num: i32, mut den: i32) -> (c32, FromRationalFlag) {
             mode = FromRationalFlag::TRUNCATED;
             break;
         }
-        if num >= den << 2 {
+        if num >= den << 1 {
             out.set_ord(index);
             if num & 1 == 0 {
                 num >>= 1;
@@ -117,7 +112,7 @@ pub fn from_srat(mut num: i32, mut den: i32) -> (c32, FromRationalFlag) {
         } // there's no other possibility
         index += 1;
     }
-    (out, mode)
+    (out, mode, num, den)
 }
 
 bitflags! {

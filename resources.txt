@@ -5,7 +5,7 @@ Speculatively Redundant Continued Logarithm Representation (2010, Brabec)
 https://ieeexplore.ieee.org/document/5467052 <=== important innovation for arbitrary-precision clogs
 
 Hardware Implementation of Continued Logarithm Arithmetic (2006, Brabec)
-https://ieeexplore.ieee.org/document/4402399 <=== [TODO: read this thoroughly, it seems very important]
+https://ieeexplore.ieee.org/document/4402399 <=== important clog investigation, cool hardware stuff
 
 Continued fractions for high-speed and high-accuracy computer arithmetic (1983)
 https://ieeexplore.ieee.org/document/6158099 <=== several blft units in parallel shoveling terms through (no clogs)
@@ -16,6 +16,8 @@ https://ieeexplore.ieee.org/document/1674903
 
 Continued Logarithm Implementations of Log etc (in Haskell)
 https://mathr.co.uk/web/continued-logarithm.html <== first instance of log/exp/sin/etc functions
+
+i need to investigate the number theoretic properties of this tree:
 
 TODO plot binary continued logarithms on a tree (add -/ for topograph??)
 1 is like "go this direction" 0 is like "switch which direction is 'this'"

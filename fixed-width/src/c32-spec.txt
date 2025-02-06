@@ -51,9 +51,8 @@ TRUNCATED = 1
     indicates that the output clog's word was not large enough
     to store all the
 
-from_rational :: i32 _num_, i32 _den_ => c32, FromRationalFlag
+from_rational64 :: i32 _num_, i32 _den_ => c32, FromRationalFlag, i32, i32
 ======
-modifies
 
 Conversion to/from decimal
 
