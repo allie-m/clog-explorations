@@ -31,7 +31,7 @@ def try_rationals(iters, gen_ft):
 	ld_ones = list(map(lambda i: i[3], info))
 	avg_mags = list(map(lambda i: i[4], info))
 	# what scatterplots we're producing
-	plt.scatter(values, clog_lengths)
+	plt.scatter(values, avg_mags)
 
 def _magnitudes_random_int32(i):
 	mag = random.randint(3, 64)
