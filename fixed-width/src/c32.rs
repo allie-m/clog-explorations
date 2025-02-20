@@ -8,6 +8,8 @@
 //! Analogous in concept to a fixed-radix number;
 //! see d32-spec.txt for a floating-point clog analog
 
+// #![allow(unused)]
+
 use core::fmt::Debug;
 use core::fmt::Formatter;
 
