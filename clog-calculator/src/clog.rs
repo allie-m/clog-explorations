@@ -29,6 +29,7 @@ pub trait Stream: Iterator<Item = Term> + Clone {}
 // log_b/pow
 // sin/cos/tan/sinh/cosh/tanh
 
+// nonspeculative
 pub fn rational(num: BigUint, den: BigUint, sign: i8) -> impl Stream {
     #[derive(Clone)]
     struct Rational {
@@ -45,10 +46,10 @@ pub fn rational(num: BigUint, den: BigUint, sign: i8) -> impl Stream {
                 self.sign = 1;
                 Some(Term::Neg)
             } else if (self.num.clone() >> 1) >= self.den {
-                if !self.den.bit(0) {
-                    self.den <<= 1;
-                } else {
+                if !self.num.bit(0) {
                     self.num >>= 1;
+                } else {
+                    self.den <<= 1;
                 }
                 Some(Term::Ord)
             } else if self.num >= self.den {
@@ -65,27 +66,83 @@ pub fn rational(num: BigUint, den: BigUint, sign: i8) -> impl Stream {
     Rational { num, den, sign }
 }
 
-pub fn lft<X, Y>(x: X, y: Y, mat: [BigInt; 4]) -> impl Stream
+// nonspeculative;
+// an lft can never become stuck at a decision boundary
+// the way that a blft can
+pub fn lft<X>(x: X, mat: [BigInt; 4]) -> impl Stream
 where
     X: Stream,
-    Y: Stream,
 {
     #[derive(Clone)]
-    struct Lft<X: Stream, Y: Stream> {
+    struct Lft<X: Stream> {
         x: X,
-        y: Y,
         mat: [BigInt; 4],
     }
-    impl<X: Stream, Y: Stream> Iterator for Lft<X, Y> {
+    impl<X: Stream> Iterator for Lft<X> {
         type Item = Term;
         fn next(&mut self) -> Option<Term> {
-            None
+            if self.mat[2] == 0.into() && self.mat[3] == 0.into() {
+                return None;
+            }
+            // keep ingesting until you can egest
+            loop {
+                // ingest from x
+                match self.x.next() {
+                    Some(Term::Ord | Term::OrdSpec | Term::OrdSingularity) => {
+                        self.mat[0] <<= 1;
+                        self.mat[2] <<= 1;
+                    }
+                    Some(Term::DRec | Term::DRecSpec) => {
+                        //
+                    }
+                    Some(Term::Rec | Term::RecSpec) => {
+                        //
+                    }
+                    Some(Term::Neg) => {
+                        self.mat[0] = -self.mat[0].clone();
+                        self.mat[2] = -self.mat[2].clone();
+                    }
+                    None => {
+                        self.mat[1] = self.mat[0].clone();
+                        self.mat[3] = self.mat[2].clone();
+                    }
+                }
+                // egest check
+                if (self.mat[0] < 0.into() && self.mat[1] < 0.into())
+                    ^ (self.mat[2] < 0.into() && self.mat[3] < 0.into())
+                {
+                    if self.mat[0] < 0.into() {
+                        self.mat[0] = -self.mat[0].clone();
+                        self.mat[1] = -self.mat[1].clone();
+                    } else {
+                        self.mat[2] = -self.mat[2].clone();
+                        self.mat[3] = -self.mat[3].clone();
+                    }
+                    return Some(Term::Neg);
+                } else if (self.mat[0].clone() >> 1) >= self.mat[2]
+                    && (self.mat[1].clone() >> 1) >= self.mat[3]
+                {
+                    if !self.mat[0].bit(0) && !self.mat[1].bit(0) {
+                        self.mat[0] >>= 1;
+                        self.mat[1] >>= 1;
+                    } else {
+                        self.mat[2] <<= 1;
+                        self.mat[3] <<= 1;
+                    }
+                    return Some(Term::Ord);
+                } else if self.mat[0] >= self.mat[2] && self.mat[1] >= self.mat[3] {
+                    return Some(Term::DRec);
+                } else if self.mat[0] < self.mat[2] && self.mat[1] < self.mat[3] {
+                    return Some(Term::Rec);
+                }
+            }
         }
     }
-    impl<X: Stream, Y: Stream> Stream for Lft<X, Y> {}
-    Lft { x, y, mat }
+    impl<X: Stream> Stream for Lft<X> {}
+    Lft { x, mat }
 }
 
+// speculative
 pub fn blft<X, Y>(x: X, y: Y, mat: [BigInt; 8]) -> impl Stream
 where
     X: Stream,

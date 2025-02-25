@@ -12,6 +12,7 @@ fn main() {
     // we're just not gonna deal with io errors
     // they'll get sent to stderr, whatever
     while stdin.read_line(&mut buf).unwrap() > 0 {
-        write!(stdout, "{}", buf).unwrap();
+        // write!(stdout, "{}", buf).unwrap();
+        println!("{:?}", parse::tokenize_expression(&buf));
     }
 }
