@@ -55,6 +55,7 @@ pub enum Constant {
     Phi,
 }
 
+#[derive(Debug)]
 pub enum Token {
     LParen,
     RParen,
@@ -68,20 +69,21 @@ pub enum Token {
     Pow,
 
     Name(String),
-    Decimal { numbers: Vec<u8>, pt_index: u32 },
+    Decimal { numbers: Vec<u32>, pt_index: u32 },
 }
 
 #[derive(Clone, Copy, Debug)]
 pub enum TokenizeExprError {
     UnknownChar(char),
     InvalidDecimal, // decimals can't have non-numeric/'.' characters in them
-    InvalidName, // names can't have numbers or '.' in them
+    InvalidName,    // names can't have numbers or '.' in them
+    MultipleDecimalPoints,
 }
 
-pub fn tokenize_expression(expr: &str) -> Result<(), TokenizeExprError> {
-    let mut iter = expr.trim().chars();
+pub fn tokenize_expression(expr: &str) -> Result<Vec<Token>, TokenizeExprError> {
+    let mut iter: Box<dyn Iterator<Item = char>> = Box::new(expr.trim().chars());
+    let mut tokens = vec![];
     loop {
-        let mut peeker = iter.clone();
         let c = match iter.next() {
             Some(c) => c,
             None => break,
@@ -103,7 +105,7 @@ pub fn tokenize_expression(expr: &str) -> Result<(), TokenizeExprError> {
                 enum Kind {
                     Name(String),
                     Decimal {
-                        numbers: Vec<u8>,
+                        numbers: Vec<u32>,
                         pt_index: Option<u32>,
                     },
                 }
@@ -116,27 +118,38 @@ pub fn tokenize_expression(expr: &str) -> Result<(), TokenizeExprError> {
                     Kind::Name(String::new())
                 };
                 let mut i = 0;
-                while let Some(item) = peeker.next() {
+                iter = Box::new(Some(c).into_iter().chain(iter));
+                while let Some(item) = iter.next() {
                     match item {
                         '(' | ')' | '|' | '+' | '-' | '*' | '/' | '%' | '^' | ',' | ' ' | '\n'
                         | '\t' => {
+                            iter = Box::new(Some(item).into_iter().chain(iter));
                             break;
                         }
                         '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
                             match &mut kind {
                                 Kind::Decimal { numbers, pt_index } => {
                                     if item == '.' {
-                                        //
+                                        match pt_index {
+                                            Some(_) => {
+                                                return Err(
+                                                    TokenizeExprError::MultipleDecimalPoints,
+                                                )
+                                            }
+                                            None => *pt_index = Some(i),
+                                        }
+                                    } else {
+                                        numbers.push(c.to_digit(10).unwrap())
                                     }
                                 }
-                                _ => return Err(TokenizeExprError::InvalidName)
+                                _ => return Err(TokenizeExprError::InvalidName),
                             }
                         }
                         c => {
                             if c.is_alphabetic() {
                                 match &mut kind {
                                     Kind::Name(n) => n.push(c),
-                                    _ => return Err(TokenizeExprError::InvalidDecimal)
+                                    _ => return Err(TokenizeExprError::InvalidDecimal),
                                 }
                             } else {
                                 return Err(TokenizeExprError::UnknownChar(c));
@@ -154,6 +167,7 @@ pub fn tokenize_expression(expr: &str) -> Result<(), TokenizeExprError> {
                 }
             }
         };
+        tokens.push(token);
     }
-    Ok(())
+    Ok(tokens)
 }
