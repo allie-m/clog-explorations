@@ -74,10 +74,12 @@ pub enum Token {
 
 #[derive(Clone, Copy, Debug)]
 pub enum TokenizeExprError {
+    #[allow(unused)]
     UnknownChar(char),
     InvalidDecimal, // decimals can't have non-numeric/'.' characters in them
     InvalidName,    // names can't have numbers or '.' in them
     MultipleDecimalPoints,
+    EmptyDecimal, // '.' is not a valid number
 }
 
 pub fn tokenize_expression(expr: &str) -> Result<Vec<Token>, TokenizeExprError> {
@@ -119,17 +121,17 @@ pub fn tokenize_expression(expr: &str) -> Result<Vec<Token>, TokenizeExprError> 
                 };
                 let mut i = 0;
                 iter = Box::new(Some(c).into_iter().chain(iter));
-                while let Some(item) = iter.next() {
-                    match item {
+                while let Some(c) = iter.next() {
+                    match c {
                         '(' | ')' | '|' | '+' | '-' | '*' | '/' | '%' | '^' | ',' | ' ' | '\n'
                         | '\t' => {
-                            iter = Box::new(Some(item).into_iter().chain(iter));
+                            iter = Box::new(Some(c).into_iter().chain(iter));
                             break;
                         }
                         '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
                             match &mut kind {
                                 Kind::Decimal { numbers, pt_index } => {
-                                    if item == '.' {
+                                    if c == '.' {
                                         match pt_index {
                                             Some(_) => {
                                                 return Err(
@@ -160,10 +162,15 @@ pub fn tokenize_expression(expr: &str) -> Result<Vec<Token>, TokenizeExprError> 
                 }
                 match kind {
                     Kind::Name(name) => Token::Name(name),
-                    Kind::Decimal { numbers, pt_index } => Token::Decimal {
-                        numbers: numbers.clone(),
-                        pt_index: pt_index.unwrap_or(numbers.len() as u32),
-                    },
+                    Kind::Decimal { numbers, pt_index } => {
+                        if numbers.len() == 0 {
+                            return Err(TokenizeExprError::EmptyDecimal);
+                        }
+                        Token::Decimal {
+                            numbers: numbers.clone(),
+                            pt_index: pt_index.unwrap_or(numbers.len() as u32),
+                        }
+                    }
                 }
             }
         };
