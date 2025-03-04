@@ -1,8 +1,12 @@
-// pi + 4
+// NEVERMIND
+// WE'RE USING A STACK MODEL
+// 4 5 pi + - 74 /
+//
+// /*pi + 4
 // a = 4.1294 / 2 - 5 * 4
 // ((a^4 + 10)^(-1/2) + pi)
-// .45 - (-10*pi/4-1)
-
+// .45 - (-10*pi/4-1)*/
+//
 // we unravel the input expression
 // into a DAG
 // which we convert easily into a clog DAG
@@ -20,17 +24,30 @@
 
 // yields [E (exact) or T (truncated)] [output]
 
-pub enum Node {
-    // one child
-    Abs,
-    Neg,
-    Sqrt,
+use std::str::FromStr;
 
+use num_bigint::BigUint;
+
+#[derive(Debug)]
+pub enum Node {
+    OneChild(OneChild, Box<Node>),
+    TwoChildren(TwoChildren, Box<Node>, Box<Node>),
+    // zero children
+    Decimal { word: BigUint, pow: u16 }, // val = word * 10^(-pow)
+    Constant { kind: Constant },
+    Variable { name: String },
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum OneChild {
+    Abs,
+    Sqrt,
     Exp,
     Ln,
-    // the rest of the trig stuff
+}
 
-    // two children
+#[derive(Clone, Copy, Debug)]
+pub enum TwoChildren {
     Add,
     Sub,
     Mul,
@@ -41,13 +58,9 @@ pub enum Node {
     Round,
     Mod,
     Log, // (exp, base)
-
-    // zero children
-    Variable { name: String },
-    Decimal { word: u32, offset: u8 },
-    Constant { kind: Constant },
 }
 
+#[derive(Clone, Copy, Debug)]
 pub enum Constant {
     Pi,
     Tau,
@@ -55,126 +68,113 @@ pub enum Constant {
     Phi,
 }
 
-#[derive(Debug)]
-pub enum Token {
-    LParen,
-    RParen,
-    Comma,
-    Abs,
-    Plus,
-    Minus,
-    Mul,
-    Div,
-    Mod,
-    Pow,
-
-    Name(String),
-    Decimal { numbers: Vec<u32>, pt_index: u32 },
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum TokenizeExprError {
+#[derive(Clone, Debug)]
+pub enum RollExprError {
     #[allow(unused)]
-    UnknownChar(char),
-    InvalidDecimal, // decimals can't have non-numeric/'.' characters in them
-    InvalidName,    // names can't have numbers or '.' in them
-    MultipleDecimalPoints,
-    EmptyDecimal, // '.' is not a valid number
+    InvalidToken(String),
+    InvalidDecimal,
+    InvalidName,
+    EmptyStack,
 }
 
-pub fn tokenize_expression(expr: &str) -> Result<Vec<Token>, TokenizeExprError> {
-    let mut iter: Box<dyn Iterator<Item = char>> = Box::new(expr.trim().chars());
-    let mut tokens = vec![];
-    loop {
-        let c = match iter.next() {
-            Some(c) => c,
-            None => break,
-        };
-        let token = match c {
-            '(' => Token::LParen,
-            ')' => Token::RParen,
-            '|' => Token::Abs,
-            '+' => Token::Plus,
-            '-' => Token::Minus,
-            '*' => Token::Mul,
-            '/' => Token::Div,
-            '%' => Token::Mod,
-            '^' => Token::Pow,
-            ',' => Token::Comma,
-            ' ' | '\n' | '\t' => continue,
-            c => {
-                // must be a name or decimal
-                enum Kind {
-                    Name(String),
-                    Decimal {
-                        numbers: Vec<u32>,
-                        pt_index: Option<u32>,
+// rolls a stack expression into a DAG
+// items leftover at the bottom of the stack are ignored
+pub fn roll_stack_expression(expr: &str) -> Result<Box<Node>, RollExprError> {
+    let mut stack = vec![];
+    for token in expr.trim().split(" ") {
+        let token = token.trim();
+        if token.is_empty() {
+            continue;
+        }
+        match token {
+            // binary ops
+            "+" | "-" | "*" | "/" | "%" | "^" | "log" | "floor" | "ceil" | "round" => {
+                let t1 = stack.pop().ok_or(RollExprError::EmptyStack)?;
+                let t2 = stack.pop().ok_or(RollExprError::EmptyStack)?;
+                stack.push(Box::new(Node::TwoChildren(
+                    match token {
+                        "+" => TwoChildren::Add,
+                        "-" => TwoChildren::Sub,
+                        "*" => TwoChildren::Mul,
+                        "/" => TwoChildren::Div,
+                        "%" => TwoChildren::Mod,
+                        "^" => TwoChildren::Pow,
+                        "log" => TwoChildren::Log,
+                        "floor" => TwoChildren::Floor,
+                        "ceil" => TwoChildren::Ceil,
+                        "round" => TwoChildren::Round,
+                        _ => unreachable!(),
                     },
+                    t1,
+                    t2,
+                )));
+            }
+            // unary ops
+            "abs" | "sqrt" | "exp" | "ln" => {
+                let top = stack.pop().ok_or(RollExprError::EmptyStack)?;
+                stack.push(Box::new(Node::OneChild(
+                    match token {
+                        "abs" => OneChild::Abs,
+                        "sqrt" => OneChild::Sqrt,
+                        "exp" => OneChild::Exp,
+                        "ln" => OneChild::Ln,
+                        _ => unreachable!(),
+                    },
+                    top,
+                )));
+            }
+            // constants
+            "pi" | "tau" | "e" | "phi" => stack.push(Box::new(Node::Constant {
+                kind: match token {
+                    "pi" => Constant::Pi,
+                    "tau" => Constant::Tau,
+                    "e" => Constant::E,
+                    "phi" => Constant::Phi,
+                    _ => unreachable!(),
+                },
+            })),
+            other => {
+                if other.chars().all(|c| !c.is_alphanumeric() && c != '.') {
+                    return Err(RollExprError::InvalidToken(token.to_owned()));
                 }
-                let mut kind = if c == '.' || c.is_numeric() {
-                    Kind::Decimal {
-                        numbers: vec![],
-                        pt_index: None,
+                if other.chars().all(|c| c.is_numeric() || c == '.') {
+                    // decimal
+                    let points = other.chars().filter(|c| *c == '.').count();
+                    if points > 1 || other.chars().count() == points {
+                        return Err(RollExprError::InvalidDecimal);
+                    }
+                    let zero = !other.contains(|c| match c {
+                        '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => true,
+                        _ => false,
+                    });
+                    if !zero {
+                        let pow = other.len()
+                            - other.find('.').unwrap_or(other.len())
+                            - other.contains(".") as usize;
+                        let pow = pow.try_into().expect("if your pow can't fit into a u16 then you need to reevaluate your life");
+                        let word = other.chars().filter(|c| *c != '.').collect::<String>();
+                        stack.push(Box::new(Node::Decimal {
+                            word: BigUint::from_str(&word).unwrap(),
+                            pow,
+                        }));
+                    } else {
+                        stack.push(Box::new(Node::Decimal {
+                            word: BigUint::ZERO,
+                            pow: 0,
+                        }))
                     }
                 } else {
-                    Kind::Name(String::new())
-                };
-                let mut i = 0;
-                iter = Box::new(Some(c).into_iter().chain(iter));
-                while let Some(c) = iter.next() {
-                    match c {
-                        '(' | ')' | '|' | '+' | '-' | '*' | '/' | '%' | '^' | ',' | ' ' | '\n'
-                        | '\t' => {
-                            iter = Box::new(Some(c).into_iter().chain(iter));
-                            break;
-                        }
-                        '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
-                            match &mut kind {
-                                Kind::Decimal { numbers, pt_index } => {
-                                    if c == '.' {
-                                        match pt_index {
-                                            Some(_) => {
-                                                return Err(
-                                                    TokenizeExprError::MultipleDecimalPoints,
-                                                )
-                                            }
-                                            None => *pt_index = Some(i),
-                                        }
-                                    } else {
-                                        numbers.push(c.to_digit(10).unwrap())
-                                    }
-                                }
-                                _ => return Err(TokenizeExprError::InvalidName),
-                            }
-                        }
-                        c => {
-                            if c.is_alphabetic() {
-                                match &mut kind {
-                                    Kind::Name(n) => n.push(c),
-                                    _ => return Err(TokenizeExprError::InvalidDecimal),
-                                }
-                            } else {
-                                return Err(TokenizeExprError::UnknownChar(c));
-                            }
-                        }
-                    }
-                    i += 1;
-                }
-                match kind {
-                    Kind::Name(name) => Token::Name(name),
-                    Kind::Decimal { numbers, pt_index } => {
-                        if numbers.len() == 0 {
-                            return Err(TokenizeExprError::EmptyDecimal);
-                        }
-                        Token::Decimal {
-                            numbers: numbers.clone(),
-                            pt_index: pt_index.unwrap_or(numbers.len() as u32),
-                        }
+                    // name
+                    if !other.contains(".") {
+                        stack.push(Box::new(Node::Variable {
+                            name: other.to_owned(),
+                        }));
+                    } else {
+                        return Err(RollExprError::InvalidName);
                     }
                 }
             }
-        };
-        tokens.push(token);
+        }
     }
-    Ok(tokens)
+    stack.pop().ok_or(RollExprError::EmptyStack)
 }
