@@ -33,6 +33,8 @@ def prec_of_rat(rational):
 
 #print(prec_of_rat(clog_to_rational(random_clog(30, 0, 0.5))))
 plt.title("Random clog length vs bits required to express equivalent rational")
+plt.xlabel("# of clog bits")
+plt.ylabel("# of rational bits")
 #plt.xscale("log")
 sample_random_clogs(10000, 100, 0, 0.5)
 plt.show()

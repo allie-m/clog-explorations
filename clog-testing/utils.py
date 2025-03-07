@@ -1,3 +1,5 @@
+from math import gcd
+
 def leading_ones(cl):
     i = 0
     while i < len(cl) and cl[i] != 0:
@@ -24,7 +26,8 @@ def clog_to_rational(cl):
             mat[3] += mat[2]
             mat[0], mat[1] = mat[1], mat[0]
             mat[2], mat[3] = mat[3], mat[2]
-    return mat[0], mat[2]
+    g = gcd(mat[0], mat[2])
+    return mat[0]//g, mat[2]//g
 
 def rational_to_clog(num, den):
     cl = []

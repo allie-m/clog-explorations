@@ -73,7 +73,7 @@ pub fn lft<X>(x: X, mat: [BigInt; 4]) -> impl Stream
 where
     X: Stream,
 {
-    #[derive(Clone)]
+    #[derive(Clone, Debug)]
     struct Lft<X: Stream> {
         x: X,
         mat: [BigInt; 4],
@@ -93,10 +93,14 @@ where
                         self.mat[2] <<= 1;
                     }
                     Some(Term::DRec | Term::DRecSpec) => {
-                        //
+                        self.mat.swap(0, 1);
+                        self.mat.swap(2, 3);
+                        self.mat[0] += self.mat[1].clone();
+                        self.mat[2] += self.mat[3].clone();
                     }
                     Some(Term::Rec | Term::RecSpec) => {
-                        //
+                        self.mat.swap(0, 1);
+                        self.mat.swap(2, 3);
                     }
                     Some(Term::Neg) => {
                         self.mat[0] = -self.mat[0].clone();
@@ -108,16 +112,9 @@ where
                     }
                 }
                 // egest check
-                if (self.mat[0] < 0.into() && self.mat[1] < 0.into())
-                    ^ (self.mat[2] < 0.into() && self.mat[3] < 0.into())
-                {
-                    if self.mat[0] < 0.into() {
-                        self.mat[0] = -self.mat[0].clone();
-                        self.mat[1] = -self.mat[1].clone();
-                    } else {
-                        self.mat[2] = -self.mat[2].clone();
-                        self.mat[3] = -self.mat[3].clone();
-                    }
+                if (self.mat[0] < 0.into()) != (self.mat[2] < 0.into()) {
+                    self.mat[0] = -self.mat[0].clone();
+                    self.mat[1] = -self.mat[1].clone();
                     return Some(Term::Neg);
                 } else if (self.mat[0].clone() >> 1) >= self.mat[2]
                     && (self.mat[1].clone() >> 1) >= self.mat[3]
@@ -130,9 +127,19 @@ where
                         self.mat[3] <<= 1;
                     }
                     return Some(Term::Ord);
-                } else if self.mat[0] >= self.mat[2] && self.mat[1] >= self.mat[3] {
+                } else if self.mat[0] >= self.mat[2]
+                    && self.mat[1] >= self.mat[3]
+                    && (self.mat[0].clone() >> 1) < self.mat[2]
+                    && (self.mat[1].clone() >> 1) < self.mat[3]
+                {
+                    self.mat[0] -= self.mat[2].clone();
+                    self.mat[1] -= self.mat[3].clone();
+                    self.mat.swap(0, 2);
+                    self.mat.swap(1, 3);
                     return Some(Term::DRec);
                 } else if self.mat[0] < self.mat[2] && self.mat[1] < self.mat[3] {
+                    self.mat.swap(0, 2);
+                    self.mat.swap(1, 3);
                     return Some(Term::Rec);
                 }
             }
@@ -157,7 +164,147 @@ where
     impl<X: Stream, Y: Stream> Iterator for Blft<X, Y> {
         type Item = Term;
         fn next(&mut self) -> Option<Term> {
-            None
+            if self.mat[4] == 0.into()
+                && self.mat[5] == 0.into()
+                && self.mat[6] == 0.into()
+                && self.mat[7] == 0.into()
+            {
+                return None;
+            }
+
+            loop {
+                // ingest from x
+                match self.x.next() {
+                    Some(Term::Ord | Term::OrdSpec | Term::OrdSingularity) => {
+                        self.mat[0] <<= 1;
+                        self.mat[1] <<= 1;
+                        self.mat[4] <<= 1;
+                        self.mat[5] <<= 1;
+                    }
+                    Some(Term::DRec | Term::DRecSpec) => {
+                        self.mat.swap(0, 2);
+                        self.mat.swap(1, 3);
+                        self.mat.swap(4, 6);
+                        self.mat.swap(5, 7);
+                        self.mat[0] += self.mat[2].clone();
+                        self.mat[1] += self.mat[3].clone();
+                        self.mat[4] += self.mat[6].clone();
+                        self.mat[5] += self.mat[7].clone();
+                    }
+                    Some(Term::Rec | Term::RecSpec) => {
+                        self.mat.swap(0, 2);
+                        self.mat.swap(1, 3);
+                        self.mat.swap(4, 6);
+                        self.mat.swap(5, 7);
+                    }
+                    Some(Term::Neg) => {
+                        self.mat[0] = -self.mat[0].clone();
+                        self.mat[1] = -self.mat[1].clone();
+                        self.mat[4] = -self.mat[4].clone();
+                        self.mat[5] = -self.mat[5].clone();
+                    }
+                    None => {
+                        self.mat[2] = self.mat[0].clone();
+                        self.mat[3] = self.mat[1].clone();
+                        self.mat[6] = self.mat[4].clone();
+                        self.mat[7] = self.mat[5].clone();
+                    }
+                }
+                // ingest from y
+                match self.y.next() {
+                    Some(Term::Ord | Term::OrdSpec | Term::OrdSingularity) => {
+                        self.mat[0] <<= 1;
+                        self.mat[2] <<= 1;
+                        self.mat[4] <<= 1;
+                        self.mat[6] <<= 1;
+                    }
+                    Some(Term::DRec | Term::DRecSpec) => {
+                        self.mat.swap(0, 1);
+                        self.mat.swap(2, 3);
+                        self.mat.swap(4, 5);
+                        self.mat.swap(6, 7);
+                        self.mat[0] += self.mat[1].clone();
+                        self.mat[2] += self.mat[3].clone();
+                        self.mat[4] += self.mat[5].clone();
+                        self.mat[6] += self.mat[7].clone();
+                    }
+                    Some(Term::Rec | Term::RecSpec) => {
+                        self.mat.swap(0, 1);
+                        self.mat.swap(2, 3);
+                        self.mat.swap(4, 5);
+                        self.mat.swap(6, 7);
+                    }
+                    Some(Term::Neg) => {
+                        self.mat[0] = -self.mat[0].clone();
+                        self.mat[2] = -self.mat[2].clone();
+                        self.mat[4] = -self.mat[4].clone();
+                        self.mat[6] = -self.mat[6].clone();
+                    }
+                    None => {
+                        self.mat[1] = self.mat[0].clone();
+                        self.mat[3] = self.mat[1].clone();
+                        self.mat[5] = self.mat[4].clone();
+                        self.mat[7] = self.mat[6].clone();
+                    }
+                }
+                // egest check
+                if (self.mat[0] < 0.into()) != (self.mat[4] < 0.into()) {
+                    self.mat[0] = -self.mat[0].clone();
+                    self.mat[1] = -self.mat[1].clone();
+                    self.mat[2] = -self.mat[2].clone();
+                    self.mat[3] = -self.mat[3].clone();
+                    return Some(Term::Neg);
+                } else if (self.mat[0].clone() >> 1) >= self.mat[4]
+                    && (self.mat[1].clone() >> 1) >= self.mat[5]
+                    && (self.mat[2].clone() >> 1) >= self.mat[6]
+                    && (self.mat[3].clone() >> 1) >= self.mat[7]
+                {
+                    if !self.mat[0].bit(0)
+                        && !self.mat[1].bit(0)
+                        && !self.mat[2].bit(0)
+                        && !self.mat[3].bit(0)
+                    {
+                        self.mat[0] >>= 1;
+                        self.mat[1] >>= 1;
+                        self.mat[2] >>= 1;
+                        self.mat[3] >>= 1;
+                    } else {
+                        self.mat[4] <<= 1;
+                        self.mat[5] <<= 1;
+                        self.mat[6] <<= 1;
+                        self.mat[7] <<= 1;
+                    }
+                    return Some(Term::Ord);
+                } else if self.mat[0] >= self.mat[4]
+                    && self.mat[1] >= self.mat[5]
+                    && self.mat[2] >= self.mat[6]
+                    && self.mat[3] >= self.mat[7]
+                    && (self.mat[0].clone() >> 1) < self.mat[4]
+                    && (self.mat[1].clone() >> 1) < self.mat[5]
+                    && (self.mat[2].clone() >> 1) < self.mat[6]
+                    && (self.mat[3].clone() >> 1) < self.mat[7]
+                {
+                    self.mat[0] -= self.mat[4].clone();
+                    self.mat[1] -= self.mat[5].clone();
+                    self.mat[2] -= self.mat[6].clone();
+                    self.mat[3] -= self.mat[7].clone();
+                    self.mat.swap(0, 4);
+                    self.mat.swap(1, 5);
+                    self.mat.swap(2, 6);
+                    self.mat.swap(3, 7);
+                    return Some(Term::DRec);
+                } else if self.mat[0] < self.mat[4]
+                    && self.mat[1] < self.mat[5]
+                    && self.mat[2] < self.mat[6]
+                    && self.mat[3] < self.mat[7]
+                {
+                    self.mat.swap(0, 4);
+                    self.mat.swap(1, 5);
+                    self.mat.swap(2, 6);
+                    self.mat.swap(3, 7);
+                    return Some(Term::Rec);
+                }
+            }
         }
     }
     impl<X: Stream, Y: Stream> Stream for Blft<X, Y> {}

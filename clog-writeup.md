@@ -1,9 +1,27 @@
-Continued Logarithms Are a Flawed (But Very Interesting) Representation
+Continued Logarithms Are a Flawed Way to do Rational Arithmetic
 =
 
-For the uninitiated, continued logarithms are a variant of continued fraction first conceived in a 1978 manuscript written by Bill Gosper.
+TODO: DO THE PRESENTATION!!!!!!
 
-They enable a far more computationally efficient arithmetic algorithm than is otherwise possible for continued fractions, while preserving many of their nice properties, making them suitable (at least in theory) for high precision exact arithmetic.
+THE QUESTIONS:
+- What did you set out to accomplish?
+- What did you actually accomplish?
+- What did you learn? <--- IMPORTANT
+- If you continued the project, where would it go from here?
+TO DO: (8 min target, 10 min HARD LIMIT)
+- Finish writeup
+- Calculator
+- Demo (+ slides as bookends?)
+
+...but perhaps an underrated way to mix real and rational arithmetic.
+
+Continued logarithms never caught on as a representation for doing computer arithmetic.
+
+## Wait, What Are Continued Logarithms?
+
+For the uninitiated, continued logarithms are a variant of continued fraction first conceived in [a 1975 manuscript written by Bill Gosper](https://www.tweedledum.com/rwg/cfup.htm).
+
+They enable a far more computationally efficient arithmetic algorithm than is otherwise possible for continued fractions, while preserving many of their nice properties, making them suitable (at least in theory) for exact high precision arithmetic.
 
 The original paper, dense as it is, can probably motivate and explain them better than I can here. It's a delightful read, would recommend :D
 
@@ -29,6 +47,8 @@ Here's the process for finding the continued logarithm of 30/7.
 30/7 = 110111001010
 ```
 
+## Continued Logarithms Are Flawed
+
 Continued logarithms never did catch on; there's very little literature about them, and they are very obscure compared to other methods for high precision arithmetic (arbitrary precision floats, bignum rationals, interval arithmetic).
 
 I got to wondering why, and I've come to the conclusion that it's at least partially due to the fact they use too many bits to represent the numbers people actually want to represent.
@@ -43,7 +63,7 @@ Arithmetic uses only bitshifts, swaps, compares, and two's complement addition/s
 
 Also, since this algorithm evaluates expressions of the form `(axy + bx + cy + d)/(exy + fx + gy + h)`, division is no more expensive than addition, and what might otherwise be multiple distinct arithmetic operations can be bundled together.
 
-There exist algorithms for sqrt ([TODO gosper]()), log/exp (first attested [here](https://mathr.co.uk/web/continued-logarithm.html#Logarithm)), along with all the trig stuff you could possibly want that are approximately as taxing as arithmetic.
+There exist algorithms for sqrt ([Gosper](https://www.tweedledum.com/rwg/cfup.htm); line 1101 for cfracs, line 2486 for clogs) and log/exp (first attested [here in this random Haskell package](https://mathr.co.uk/web/continued-logarithm.html#Logarithm)), along with all the trig stuff you could possibly want, all approximately as taxing as regular arithmetic.
 
 Continued logarithms, like continued fractions, are capable of representing all exact rationals with a number of bits scaling with the complexity of the number. No `0.1 + 0.2 = 0.30000000000000004`. That's all well and good, but what does "scaling with the complexity of the number" mean, exactly?
 
@@ -54,3 +74,48 @@ However, as Gosper points out in his original paper [TODO inline citation], this
 Continued logarithms, Gosper posits [TODO inline citation], might have a better spread: each 1 term represents a binary order of magnitude, so that 2^128 requires only 128 bits; by the same token, 2^-128 requires just 129.
 
 Unfortunately, the way this representation spreads its precision remains problematic; so see that, let's check how many bits it takes to represent a bunch of random rationals as
+
+## What's That? A Use for Continued Logarithms???
+
+So far we've only been talking about continued logarithms as a way to do rational arithmetic. But what about real arithmetic?
+
+On its face, there's a problem with that: what to do about sqrt(2) * sqrt(2)? Our arithmetic algorithm is never be able to decide what even the first bit of that number is; is it greater than or less than 2?? We can't ingest an infinite number of terms, and so we never know which side of the line we end up on.
+
+Speculatively Redundant Continued Logarithms
+
+It doesn't solve
+
+[TODO]
+[ADAPT THIS!!!]
+[THIS IS COPIED STRAIGHT FROM MY README]
+Inspired by a [lobsters post](https://lobste.rs/s/xjrlj2/how_android_s_calculator_works_with_real), I wrote a CLI calculator implemented with a speculatively redundant continued logarithm scheme, as described in [Brabec 2010](https://ieeexplore.ieee.org/document/5467052).
+
+An easier way to do real arithmetic than RRA or computer algebra.
+
+I would leverage [this](https://mathr.co.uk/web/continued-logarithm.html) beautiful, featureful, yet concise Haskell implementation of continued logarithms were it to support speculatively redundant continued logarithms; however, our calculator needs to be able to evaluate sqrt(2) * sqrt(2) correctly! So, we have to roll our own.
+
+## Important Work
+
+These works (all cited inline above) made some significant innovation to
+
+Continued Fraction Arithmetic (Bill Gosper, 1975)\n
+https://www.tweedledum.com/rwg/cfup.htm
+
+Hardware Implementation of Continued Logarithm Arithmetic (2006, Toma ́s Brabec)\n
+https://ieeexplore.ieee.org/document/4402399
+
+Speculatively Redundant Continued Logarithm Representation (2010, Toma ́s Brabec)\n
+https://ieeexplore.ieee.org/document/5467052
+
+Continued Logarithm (2024, Claude Heiland-Allen)\n
+https://mathr.co.uk/web/continued-logarithm.html
+
+### Other stuff
+
+I didn't find these papers to bring much novel stuff to the table re: continued fraction-based arithmetic. But they exist, so I'm citing them for completeness.
+
+On the Use of Continued Fractions for Digital Computer Arithmetic (1977)\n
+https://ieeexplore.ieee.org/document/1674903
+
+Continued fractions for high-speed and high-accuracy computer arithmetic (1983)\n
+https://ieeexplore.ieee.org/document/6158099
