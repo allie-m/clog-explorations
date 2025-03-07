@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="335mm"
+   height="210mm"
+   viewBox="0 0 335 210"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   sodipodi:docname="clogs-as-dag.svg"
+   inkscape:export-filename="clogs-as-dag.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.66546717"
+     inkscape:cx="650.67071"
+     inkscape:cy="383.9408"
+     inkscape:window-width="1868"
+     inkscape:window-height="958"
+     inkscape:window-x="20"
+     inkscape:window-y="66"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       id="grid1"
+       units="mm"
+       originx="115"
+       originy="-34.999999"
+       spacingx="0.99999998"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="false" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <rect
+       x="-359.05511"
+       y="680.31494"
+       width="2.910383e-11"
+       height="37.795277"
+       id="rect21" />
+    <marker
+       style="overflow:visible"
+       id="RoundedArrow"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Rounded arrow"
+       markerWidth="0.30000001"
+       markerHeight="0.30000001"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="m -0.21114562,-4.1055728 6.42229122,3.21114561 a 1,1 90 0 1 0,1.78885438 L -0.21114562,4.1055728 A 1.236068,1.236068 31.717474 0 1 -2,3 v -6 a 1.236068,1.236068 148.28253 0 1 1.78885438,-1.1055728 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path8" />
+    </marker>
+  </defs>
+  <rect
+     style="fill:#e6e6e6;fill-rule:evenodd;stroke:none;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none"
+     id="rect25"
+     width="335"
+     height="210"
+     x="0"
+     y="0" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(115,-35)">
+    <rect
+       style="fill:#ff9955;fill-rule:evenodd;stroke:#000000;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       id="rect1"
+       width="100"
+       height="39.999996"
+       x="35"
+       y="90" />
+    <rect
+       style="fill:#5fd35f;fill-rule:evenodd;stroke:#000000;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       id="rect1-7"
+       width="29.999998"
+       height="20.000002"
+       x="40"
+       y="45" />
+    <rect
+       style="fill:#80b3ff;fill-rule:evenodd;stroke:#000000;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       id="rect1-7-2"
+       width="29.999998"
+       height="20.000002"
+       x="100"
+       y="44.999996" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none"
+       d="m 85.000002,130 v 35"
+       id="path1"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;marker-end:url(#RoundedArrow)"
+       d="m 85.000002,204.99999 v 25"
+       id="path1-54"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none"
+       d="m 55.000004,89.999996 v -25"
+       id="path1-5"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none"
+       d="m 115,89.999999 v -25"
+       id="path1-5-2"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="84.843376"
+       y="101.7361"
+       id="text1"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="84.843376"
+         y="101.7361">BLFT</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="84.843376"
+         y="112.31944"
+         id="tspan3">0xy + 4x + 3y + 2</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="84.843376"
+         y="122.90277"
+         id="tspan2">1xy + 0x + 0y + 10</tspan></text>
+    <rect
+       style="fill:#d3bc5f;fill-rule:evenodd;stroke:#000000;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       id="rect1-5"
+       width="100"
+       height="39.999996"
+       x="35.000008"
+       y="165" />
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="84.843376"
+       y="176.7361"
+       id="text1-0"><tspan
+         sodipodi:role="line"
+         id="tspan1-3"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="84.843376"
+         y="176.7361">NLFT</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="84.843376"
+         y="187.31944"
+         id="tspan3-6">0xy + 3x + 0y + 0</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="84.843376"
+         y="197.90277"
+         id="tspan2-1">0xy + 0x + 1y + 10</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="54.932274"
+       y="57.9972"
+       id="text1-2"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="54.932274"
+         y="57.9972"
+         id="tspan2-7">14/5</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="114.93227"
+       y="57.9972"
+       id="text1-2-9"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="114.93227"
+         y="57.9972"
+         id="tspan2-7-4">pi</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="45"
+       y="80"
+       id="text1-7"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="45"
+         y="80"
+         id="tspan2-3">x</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="125"
+       y="80"
+       id="text1-7-2"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="125"
+         y="80"
+         id="tspan2-3-6">y</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="100.12277"
+       y="142.83209"
+       id="text1-7-9"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="100.12277"
+         y="142.83209"
+         id="tspan2-3-2">out</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="95"
+       y="160"
+       id="text1-7-9-3"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="95"
+         y="160"
+         id="tspan2-3-2-7">x</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="95"
+       y="215"
+       id="text1-7-9-3-3"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="95"
+         y="215"
+         id="tspan2-3-2-7-0">y</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="175"
+       y="100"
+       id="text1-7-9-2"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="175"
+         y="100"
+         id="tspan6">4x + 3y + 2</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="175"
+         y="110.58334"
+         id="tspan7">===========</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="175"
+         y="121.16667"
+         id="tspan8">xy + 10</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="-44.983067"
+       y="111.64409"
+       id="text1-7-9-2-8"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="-44.983067"
+         y="111.64409"
+         id="tspan12">together, these egest</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="-44.983067"
+         y="122.22742"
+         id="tspan17">arbitrarily many terms</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="-44.983067"
+         y="132.81076"
+         id="tspan16">for the expression</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="-39.144531"
+       y="52.472168"
+       id="text1-7-9-2-8-0"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="-39.144531"
+         y="52.472168"
+         id="tspan16-7">an example of what you get</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="-39.144531"
+         y="63.055504"
+         id="tspan27">when you chain together</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="-39.144535"
+         y="73.63884"
+         id="tspan28">continued logarithm</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="-39.144531"
+         y="84.222183"
+         id="tspan29">arithmetic units</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="-103.12373"
+       y="147.32436"
+       id="text1-7-9-2-8-2"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;text-align:start;text-anchor:start;fill:#000000;stroke:none;stroke-width:3"
+         x="-103.12373"
+         y="147.32436"
+         id="tspan13-2"> /---------------------</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;text-align:start;text-anchor:start;fill:#000000;stroke:none;stroke-width:3"
+         x="-103.12373"
+         y="157.9077"
+         id="tspan25"> |  4(14/5) + 3pi + 2</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;text-align:start;text-anchor:start;fill:#000000;stroke:none;stroke-width:3"
+         x="-103.12373"
+         y="168.49103"
+         id="tspan15-6"> |=====================</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;text-align:start;text-anchor:start;fill:#000000;stroke:none;stroke-width:3"
+         x="-103.12373"
+         y="179.07437"
+         id="tspan16-6">\|    (14/5)pi + 10</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.46667px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:round"
+       x="165.28539"
+       y="187.3694"
+       id="text1-7-9-2-5"><tspan
+         sodipodi:role="line"
+         style="font-size:8.46667px;fill:#000000;stroke:none;stroke-width:3"
+         x="165.28539"
+         y="187.3694"
+         id="tspan8-6">y = 3x/y</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text21"
+       style="font-size:32px;font-family:'Noto Sans Mono';-inkscape-font-specification:'Noto Sans Mono';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect21);display:inline;fill:none;fill-rule:evenodd;stroke:#c83737;stroke-width:15.1181;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none" />
+  </g>
+</svg>

@@ -57,7 +57,7 @@ But first, their advantages, of which they on their face have many.
 
 Algorithms written for continued logarithms ingest and egest the representation left to right, always dealing with the most significant bits first. You can interrupt a process and get an accurate but truncated output. Operations like arithmetic or sqrt or log can be treated like composable lazy iterators, feeding terms into each other on-demand; they're most naturally framed as a DAG (directed acyclic graph), like that shown below.
 
-[TODO image]
+![](clogs-as-dag.png)
 
 Arithmetic uses only bitshifts, swaps, compares, and two's complement addition/subtraction, on the order of one add/sub per output bit, where the order of magnitude of the integers involved scales linearly with the number of terms already inputted. Not especially efficient, but (especially with dedicated hardware) it might compare favorably with rational arithmetic, or other methods that require big integer division.
 
