@@ -69,11 +69,13 @@ Continued logarithms, like continued fractions, are capable of representing all 
 
 In the case of continued fractions, it's very clear: the Stern-Brocot tree enumerates all rationals nonredundantly, and simple continued fractions can be thought of as a run-length encoding of a path down the tree. This is very mathematically pleasing, and the more complex a rational is (the larger its denominator is) the further down the tree it is (and hence the more bits it requires).
 
-However, as Gosper points out in his original paper [TODO inline citation], this correspondence renders continued fractions a very inefficient representation. Each term is an integer, but it's not obvious how big an integer to allocate for each term; they do not span orders of magnitude well, as representing 2^128 would require leading with a 128 bit integer. Decomposing continued fractions into binary strings makes this problem much worse; 2^128 would require 2^128 leading 1s. This issue also applies to negative orders of magnitude; 2^-128 is 0 2^-128 leading 0s, or [0; 2^128]. The representation is heavily biased to numbers near 1/1. [TODO]
+However, as Gosper points out in his original paper [[Gosper](https://www.tweedledum.com/rwg/cfup.htm) line 2408], this correspondence renders continued fractions a very inefficient representation. Each term is an integer, but it's not obvious how big an integer to allocate for each term; they do not span orders of magnitude well, as representing 2^128 would require leading with a 128 bit integer. Decomposing continued fractions into binary strings makes this problem much worse; 2^128 would require 2^128 leading 1s. This issue also applies to negative orders of magnitude; 2^-128 is 0 2^-128 leading 0s, or [0; 2^128]. The representation is heavily biased to numbers near 1/1.
 
-Continued logarithms, Gosper posits [TODO inline citation], might have a better spread: each 1 term represents a binary order of magnitude, so that 2^128 requires only 128 bits; by the same token, 2^-128 requires just 129.
+Continued logarithms might have a better spread: each 1 term represents a binary order of magnitude, so that 2^128 requires only 128 bits; by the same token, 2^-128 requires just 129.
 
 Unfortunately, the way this representation spreads its precision remains problematic; so see that, let's check how many bits it takes to represent a bunch of random rationals as
+
+[TODO]
 
 ## What's That? A Use for Continued Logarithms???
 
@@ -81,9 +83,25 @@ So far we've only been talking about continued logarithms as a way to do rationa
 
 On its face, there's a problem with that: what to do about sqrt(2) * sqrt(2)? Our arithmetic algorithm is never be able to decide what even the first bit of that number is; is it greater than or less than 2?? We can't ingest an infinite number of terms, and so we never know which side of the line we end up on.
 
-Speculatively Redundant Continued Logarithms
+Gosper says that continued logarithms are better positioned than continued fractions to handle such real arithmetic, capable of more easily guessing and retracting terms [[Gosper](https://www.tweedledum.com/rwg/cfup.htm) line 2448].
 
-It doesn't solve
+This idea, left vague by Gosper, was elaborated on by Toma ́s Brabec in a 2020 paper, [Speculatively Redundant Continued Logarithm Representation](https://ieeexplore.ieee.org/document/5467052).
+
+Brabec describes a continued logarithm scheme with 8 terms, 4 non-speculative and 4 speculative, designed to handle real arithmetic. It doesn't solve the precision distribution problem. In fact, it makes the problem much worse by adding yet more continued logarithm terms. But, it does allow you to mix real and rational arithmetic to arbitrary precision without ever choking (even if some situations, like sqrt(2) * sqrt(2), will only ever emit speculative terms).
+
+I had no idea what this could possibly be useful for.
+
+Until, that is, I stumbled across this [lobsters post](https://lobste.rs/s/xjrlj2/how_android_s_calculator_works_with_real) about Android's calculator, and the contortions required to get good arbitrary precision calculations.
+
+Left with only a few weeks left in my 1L, I had limited time to throw together a calculator.
+
+So,
+
+## Behold, a basic CLI stack calculator
+
+[TODO image]
+
+I know, very impressive.
 
 [TODO]
 [ADAPT THIS!!!]
@@ -112,7 +130,7 @@ https://mathr.co.uk/web/continued-logarithm.html
 
 ### Other stuff
 
-I didn't find these papers to bring much novel stuff to the table re: continued fraction-based arithmetic. But they exist, so I'm citing them for completeness.
+I didn't think these papers brought much to the table re: continued fraction-based arithmetic. But they exist and are related material, so I'm citing them for completeness.
 
 On the Use of Continued Fractions for Digital Computer Arithmetic (1977)\n
 https://ieeexplore.ieee.org/document/1674903

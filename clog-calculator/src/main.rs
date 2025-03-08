@@ -26,8 +26,8 @@ fn main() {
             0.into(),
             0.into(),
             0.into(),
-            1.into()
-        ]
+            1.into(),
+        ],
     );
     println!("{:?}", iter.collect::<Vec<_>>());
     // for _ in 0..20 {

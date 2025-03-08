@@ -160,6 +160,7 @@ where
         x: X,
         y: Y,
         mat: [BigInt; 8],
+        singularity: bool,
     }
     impl<X: Stream, Y: Stream> Iterator for Blft<X, Y> {
         type Item = Term;
@@ -248,6 +249,42 @@ where
                     }
                 }
                 // egest check
+
+                // singularity management
+                let s1 = (self.mat[0] < 0.into()) ^ (self.mat[4] < 0.into());
+                let s2 = (self.mat[1] < 0.into()) ^ (self.mat[5] < 0.into());
+                let s3 = (self.mat[2] < 0.into()) ^ (self.mat[6] < 0.into());
+                let s4 = (self.mat[3] < 0.into()) ^ (self.mat[7] < 0.into());
+                if self.singularity && (s1 != s2 || s2 != s3 || s3 != s4) {
+                    if (self.mat[0].clone() >> 1) >= self.mat[4]
+                        && (self.mat[1].clone() >> 1) >= self.mat[5]
+                        && (self.mat[2].clone() >> 1) >= self.mat[6]
+                        && (self.mat[3].clone() >> 1) >= self.mat[7]
+                    {
+                        if !self.mat[0].bit(0)
+                            && !self.mat[1].bit(0)
+                            && !self.mat[2].bit(0)
+                            && !self.mat[3].bit(0)
+                        {
+                            self.mat[0] >>= 1;
+                            self.mat[1] >>= 1;
+                            self.mat[2] >>= 1;
+                            self.mat[3] >>= 1;
+                        } else {
+                            self.mat[4] <<= 1;
+                            self.mat[5] <<= 1;
+                            self.mat[6] <<= 1;
+                            self.mat[7] <<= 1;
+                        }
+                        return Some(Term::OrdSingularity);
+                    } else {
+                        continue;
+                    }
+                } else {
+                    self.singularity = false;
+                }
+
+                // the normal stuff
                 if (self.mat[0] < 0.into()) != (self.mat[4] < 0.into()) {
                     self.mat[0] = -self.mat[0].clone();
                     self.mat[1] = -self.mat[1].clone();
@@ -304,11 +341,17 @@ where
                     self.mat.swap(3, 7);
                     return Some(Term::Rec);
                 }
+                // TODO speculative
             }
         }
     }
     impl<X: Stream, Y: Stream> Stream for Blft<X, Y> {}
-    Blft { x, y, mat }
+    Blft {
+        x,
+        y,
+        mat,
+        singularity: false,
+    }
 }
 
 pub fn nlft<X, Y>(x: X, y: Y, mat: [BigInt; 8]) -> impl Stream
