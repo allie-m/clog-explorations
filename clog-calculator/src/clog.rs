@@ -256,10 +256,14 @@ where
                 let s3 = (self.mat[2] < 0.into()) ^ (self.mat[6] < 0.into());
                 let s4 = (self.mat[3] < 0.into()) ^ (self.mat[7] < 0.into());
                 if self.singularity && (s1 != s2 || s2 != s3 || s3 != s4) {
-                    if (self.mat[0].clone() >> 1) >= self.mat[4]
-                        && (self.mat[1].clone() >> 1) >= self.mat[5]
-                        && (self.mat[2].clone() >> 1) >= self.mat[6]
-                        && (self.mat[3].clone() >> 1) >= self.mat[7]
+                    let a1: BigInt = self.mat[4].clone() << 1;
+                    let a2: BigInt = self.mat[5].clone() << 1;
+                    let a3: BigInt = self.mat[6].clone() << 1;
+                    let a4: BigInt = self.mat[7].clone() << 1;
+                    if a1.into_parts().1 < self.mat[0].clone().into_parts().1
+                        && a2.into_parts().1 < self.mat[1].clone().into_parts().1
+                        && a3.into_parts().1 < self.mat[2].clone().into_parts().1
+                        && a4.into_parts().1 < self.mat[3].clone().into_parts().1
                     {
                         if !self.mat[0].bit(0)
                             && !self.mat[1].bit(0)
@@ -341,7 +345,63 @@ where
                     self.mat.swap(3, 7);
                     return Some(Term::Rec);
                 }
-                // TODO speculative
+                // the following are SPECULATIVE
+                else if self.mat[4] < self.mat[0]
+                    && self.mat[0] < (self.mat[4].clone() << 2)
+                    && self.mat[5] < self.mat[1]
+                    && self.mat[1] < (self.mat[5].clone() << 2)
+                    && self.mat[6] < self.mat[2]
+                    && self.mat[2] < (self.mat[6].clone() << 2)
+                    && self.mat[7] < self.mat[3]
+                    && self.mat[3] < (self.mat[7].clone() << 2)
+                {
+                    if !self.mat[0].bit(0)
+                        && !self.mat[1].bit(0)
+                        && !self.mat[2].bit(0)
+                        && !self.mat[3].bit(0)
+                    {
+                        self.mat[0] >>= 1;
+                        self.mat[1] >>= 1;
+                        self.mat[2] >>= 1;
+                        self.mat[3] >>= 1;
+                    } else {
+                        self.mat[4] <<= 1;
+                        self.mat[5] <<= 1;
+                        self.mat[6] <<= 1;
+                        self.mat[7] <<= 1;
+                    }
+                    return Some(Term::OrdSpec);
+                } else if self.mat[4] < (self.mat[0].clone() << 1)
+                    && self.mat[0] < self.mat[4].clone() << 1
+                    && self.mat[5] < (self.mat[1].clone() << 1)
+                    && self.mat[1] < self.mat[5].clone() << 1
+                    && self.mat[6] < (self.mat[2].clone() << 1)
+                    && self.mat[2] < self.mat[6].clone() << 1
+                    && self.mat[7] < (self.mat[3].clone() << 1)
+                    && self.mat[3] < self.mat[7].clone() << 1
+                {
+                    self.mat[0] -= self.mat[4].clone();
+                    self.mat[1] -= self.mat[5].clone();
+                    self.mat[2] -= self.mat[6].clone();
+                    self.mat[3] -= self.mat[7].clone();
+                    self.mat.swap(0, 4);
+                    self.mat.swap(1, 5);
+                    self.mat.swap(2, 6);
+                    self.mat.swap(3, 7);
+                    self.singularity = true;
+                    return Some(Term::DRecSpec);
+                } else if self.mat[4].clone().into_parts().1 > self.mat[0].clone().into_parts().1
+                    && self.mat[5].clone().into_parts().1 > self.mat[1].clone().into_parts().1
+                    && self.mat[6].clone().into_parts().1 > self.mat[2].clone().into_parts().1
+                    && self.mat[7].clone().into_parts().1 > self.mat[3].clone().into_parts().1
+                {
+                    self.mat.swap(0, 4);
+                    self.mat.swap(1, 5);
+                    self.mat.swap(2, 6);
+                    self.mat.swap(3, 7);
+                    self.singularity = true;
+                    return Some(Term::RecSpec);
+                }
             }
         }
     }

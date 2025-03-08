@@ -13,6 +13,7 @@ fn main() {
     //     clog::lft(rat.clone(), [1.into(), 0.into(), 0.into(), 1.into()],).collect::<Vec<_>>()
     // );
 
+    // 10/3 * 15/1 = 50
     let c1 = clog::rational(10u32.into(), 3u32.into(), 1);
     let c2 = clog::rational(15u32.into(), 1u32.into(), 1);
     let iter = clog::blft(
@@ -29,7 +30,7 @@ fn main() {
             1.into(),
         ],
     );
-    println!("{:?}", iter.collect::<Vec<_>>());
+    println!("{:?}", iter.clone().collect::<Vec<_>>());
     // for _ in 0..20 {
     //     println!("{:?}", iter.next())
     // }

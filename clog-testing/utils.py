@@ -21,11 +21,14 @@ def clog_to_rational(cl):
         if term == 1:
             mat[0] *= 2
             mat[2] *= 2
-        else:
+        elif term == 0:
             mat[1] += mat[0]
             mat[3] += mat[2]
             mat[0], mat[1] = mat[1], mat[0]
             mat[2], mat[3] = mat[3], mat[2]
+        elif term == '/':
+           mat[0], mat[1] = mat[1], mat[0]
+           mat[2], mat[3] = mat[3], mat[2]
     g = gcd(mat[0], mat[2])
     return mat[0]//g, mat[2]//g
 
@@ -61,3 +64,6 @@ def f64_to_clog(val):
             val = 1/val
             cl.append(0)
     return neg, recip, cl, leading_ones(cl)
+
+print(clog_to_rational([1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0]))
+print(clog_to_rational([1, 1, 1, 1, 1, 0, 1, '/', 0, 1, 1, 1, 0]))
