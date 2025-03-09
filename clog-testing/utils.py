@@ -65,5 +65,6 @@ def f64_to_clog(val):
             cl.append(0)
     return neg, recip, cl, leading_ones(cl)
 
-print(clog_to_rational([1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0]))
-print(clog_to_rational([1, 1, 1, 1, 1, 0, 1, '/', 0, 1, 1, 1, 0]))
+# print(clog_to_rational([1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0]))
+# print(clog_to_rational([1, 1, 1, 1, 1, 0, 1, '/', 0, 1, 1, 1, 0]))
+# print(clog_to_rational([0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0]))
