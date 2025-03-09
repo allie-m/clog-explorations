@@ -24,7 +24,6 @@ def sample_random_clogs(per_gen, generations, leading_ones, weight):
     precisions = list(map(prec_of_rat, rationals))
     plt.scatter(list(map(len, clogs)), list(map(prec_of_rat, map(clog_to_rational, clogs))))
 
-
 # TODO: add worst + best cases to this scatterplot
 # in different colors
 
@@ -33,8 +32,8 @@ def prec_of_rat(rational):
 
 #print(prec_of_rat(clog_to_rational(random_clog(30, 0, 0.5))))
 plt.title("Random clog length vs bits required to express equivalent rational")
-plt.xlabel("# of clog bits")
-plt.ylabel("# of rational bits")
+plt.xlabel("Continued Logarithm Terms")
+plt.ylabel("Total Bits in Rational Representation (log2(num) + log2(den))")
 #plt.xscale("log")
 sample_random_clogs(10000, 100, 0, 0.5)
 plt.show()

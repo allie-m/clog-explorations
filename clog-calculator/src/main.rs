@@ -13,6 +13,8 @@ fn main() {
     //     clog::lft(rat.clone(), [1.into(), 0.into(), 0.into(), 1.into()],).collect::<Vec<_>>()
     // );
 
+    // TODO sqrt(2) * sqrt(2)
+
     // 10/3 * 15/1 = 50
     let c1 = clog::rational(10u32.into(), 3u32.into(), 1);
     let c2 = clog::rational(15u32.into(), 1u32.into(), 1);

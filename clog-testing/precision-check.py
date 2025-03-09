@@ -26,6 +26,9 @@ def try_rationals(iters, gen_ft):
 	info = sorted(info, key=lambda i: i[0])
 	return info
 
+# (to be clear the data suggests this isn't actually the worst case for integers)
+# (somehow)
+# (this was just my hypothesized worst case)
 def worst_case(p):
 	info = []
 	for i in range(p+1, 32):
@@ -56,7 +59,9 @@ def _magnitudes_random_int32(i):
 	return random.randint(2**(mag-1) - 1, 2**mag - 1), 1
 
 plt.title("32-bit ints (equal sampling from each order of magnitude)")
-plt.xscale("log")
+plt.xscale("log", base=2)
+plt.xlabel("Integer Size")
+plt.ylabel("Continued Logarithm Terms")
 decompose_and_plot_infos(try_rationals(100000, _magnitudes_random_int32))
 decompose_and_plot_infos(worst_case(1))
 decompose_and_plot_infos(best_case())

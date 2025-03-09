@@ -73,7 +73,11 @@ However, as Gosper points out in his original paper [[Gosper](https://www.tweedl
 
 Continued logarithms might have a better spread: each 1 term represents a binary order of magnitude, so that 2^128 requires only 128 bits; by the same token, 2^-128 requires just 129.
 
-Unfortunately, the way this representation spreads its precision remains problematic; so see that, let's check how many bits it takes to represent a bunch of random rationals as
+Unfortunately, the way this representation spreads its precision remains problematic; so see that, let's check how many bits it takes to represent a bunch of random integers as continued logarithms.
+
+![](clog-testing/rand32int-cloglen.png)
+
+Yikes. That's a lot of bits to represent just basic integers, and
 
 [TODO]
 
@@ -87,15 +91,13 @@ Gosper says that continued logarithms are better positioned than continued fract
 
 This idea, left vague by Gosper, was elaborated on by Toma ́s Brabec in a 2020 paper, [Speculatively Redundant Continued Logarithm Representation](https://ieeexplore.ieee.org/document/5467052).
 
-Brabec describes a continued logarithm scheme with 8 terms, 4 non-speculative and 4 speculative, designed to handle real arithmetic. It doesn't solve the precision distribution problem. In fact, it makes the problem much worse by adding yet more continued logarithm terms. But, it does allow you to mix real and rational arithmetic to arbitrary precision without ever choking (even if some situations, like sqrt(2) * sqrt(2), will only ever emit speculative terms).
+Brabec describes a continued logarithm scheme with 8 terms, 4 non-speculative and 4 speculative, designed to handle real arithmetic. It doesn't solve the precision distribution problem. In fact, it makes the problem much worse by adding yet more continued logarithm terms. But, it does allow you to mix real and rational arithmetic to arbitrary precision without ever choking (even if some situations, like sqrt(2) * sqrt(2), will only ever emit speculative terms (although the redundancy does make some numbers more concise to represent sometimes??? It's confusing I haven't looked much into it)).
 
 I had no idea what this could possibly be useful for.
 
 Until, that is, I stumbled across this [lobsters post](https://lobste.rs/s/xjrlj2/how_android_s_calculator_works_with_real) about Android's calculator, and the contortions required to get good arbitrary precision calculations.
 
 Left with only a few weeks left in my 1L, I had limited time to throw together a calculator.
-
-So,
 
 ## Behold, a basic CLI stack calculator
 
@@ -104,13 +106,6 @@ So,
 I know, very impressive.
 
 [TODO]
-[ADAPT THIS!!!]
-[THIS IS COPIED STRAIGHT FROM MY README]
-Inspired by a [lobsters post](https://lobste.rs/s/xjrlj2/how_android_s_calculator_works_with_real), I wrote a CLI calculator implemented with a speculatively redundant continued logarithm scheme, as described in [Brabec 2010](https://ieeexplore.ieee.org/document/5467052).
-
-An easier way to do real arithmetic than RRA or computer algebra.
-
-I would leverage [this](https://mathr.co.uk/web/continued-logarithm.html) beautiful, featureful, yet concise Haskell implementation of continued logarithms were it to support speculatively redundant continued logarithms; however, our calculator needs to be able to evaluate sqrt(2) * sqrt(2) correctly! So, we have to roll our own.
 
 ## Important Work
 
