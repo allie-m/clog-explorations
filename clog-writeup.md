@@ -1,4 +1,4 @@
-Continued Logarithms Are a Flawed Way to do Rational Arithmetic
+1L Part III: Continued Logarithms Are a Flawed Way to do Rational Arithmetic
 =
 
 TODO: DO THE PRESENTATION!!!!!!
@@ -16,6 +16,8 @@ TO DO: (8 min target, 10 min HARD LIMIT)
 ...but perhaps an underrated way to mix real and rational arithmetic.
 
 Continued logarithms never caught on as a representation for doing computer arithmetic.
+
+(This is something of a pivot from my first two 1L posts; I opted to try something different for my second quarter)
 
 ## Wait, What Are Continued Logarithms?
 
@@ -111,7 +113,7 @@ Brabec describes a continued logarithm scheme with 8 terms, 4 non-speculative an
 
 I had no idea what this could possibly be useful for.
 
-Until, that is, I stumbled across this [lobsters post](https://lobste.rs/s/xjrlj2/how_android_s_calculator_works_with_real) about Android's calculator, and the contortions required to get good arbitrary precision calculations.
+Until, that is, I stumbled across this [lobste.rs post](https://lobste.rs/s/xjrlj2/how_android_s_calculator_works_with_real) about Android's calculator, and the contortions required to get good arbitrary precision calculations.
 
 With only a few weeks left in my 1L, I had limited time to throw together a calculator.
 
@@ -119,11 +121,11 @@ With only a few weeks left in my 1L, I had limited time to throw together a calc
 
 [TODO image]
 
-I know, very impressive.
+I've only had time to implement Brabec's scheme; I have yet to get around to the trig nodes. So it's kinda unfinished, but I'm happy with it as a basic proof of concept. It does feel more elegant than the recursive real arithmetic described in the lobste.rs post above, but has all the same fundamental limitations.
 
-[TODO]
+I'll come back to this at some point. Continued logarithms have gotten their hooks into me. Eventually I'll find a deeper theoretical result about them (or, at least, someone else will have). For now, this is what we content ourselves with :)
 
-## Important Work
+## Epilogue: Important Work
 
 These works (all cited inline above) made some significant innovation to
 

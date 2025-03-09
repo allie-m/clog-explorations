@@ -77,6 +77,31 @@ pub enum RollExprError {
     EmptyStack,
 }
 
+// as written, this is EXTREMELY BAREBONES
+// it ONLY DOES BASIC ARITHMETIC
+pub fn node_to_clog_stream(node: Box<Node>) -> Result<Box<dyn crate::clog::Stream>, ()> {
+    use crate::clog::*;
+    Ok(match *node {
+        Node::Constant { kind: _ } => Err(())?,
+        Node::Decimal { word, pow } => {
+            Box::new(rational(word, BigUint::from(10u32).pow(pow as u32), 1))
+        }
+        Node::OneChild(_kind, _child) => Err(())?,
+        Node::TwoChildren(kind, c1, c2) => {
+            let c1 = node_to_clog_stream(c1)?;
+            let c2 = node_to_clog_stream(c2)?;
+            Box::new(match kind {
+                TwoChildren::Add => blft(c1, c2, [0, 1, 1, 0, 0, 0, 0, 1].map(|i| i.into())),
+                TwoChildren::Sub => blft(c1, c2, [0, 1, -1, 0, 0, 0, 0, 1].map(|i| i.into())),
+                TwoChildren::Mul => blft(c1, c2, [1, 0, 0, 0, 0, 0, 0, 1].map(|i| i.into())),
+                TwoChildren::Div => blft(c1, c2, [0, 1, 0, 0, 0, 0, 1, 0].map(|i| i.into())),
+                _ => Err(())?,
+            })
+        }
+        Node::Variable { name: _ } => Err(())?,
+    })
+}
+
 // rolls a stack expression into a DAG
 // items leftover at the bottom of the stack are ignored
 pub fn roll_stack_expression(expr: &str) -> Result<Box<Node>, RollExprError> {

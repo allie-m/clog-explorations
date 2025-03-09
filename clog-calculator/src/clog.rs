@@ -14,7 +14,8 @@ pub enum Term {
     Neg,
 }
 
-pub trait Stream: Iterator<Item = Term> + Clone {}
+pub trait Stream: Iterator<Item = Term> {}
+impl Stream for Box<dyn Stream> {}
 
 // pi
 // e
