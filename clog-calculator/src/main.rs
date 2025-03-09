@@ -10,25 +10,24 @@ fn main() {
     // we're just not gonna deal with io errors
     // they'll get sent to stderr, whatever
     while stdin.read_line(&mut buf).unwrap() > 0 {
-        // write!(stdout, "{}", buf).unwrap();
         let dag = match parse::roll_stack_expression(&buf) {
             Ok(dag) => dag,
             Err(e) => {
                 eprintln!("Invalid stack expression; {:?}", e);
+                buf.clear();
                 continue;
             }
         };
         println!("{:?}", dag);
-        let mut clog_dag = match parse::node_to_clog_stream(dag) {
+        let clog_dag = match parse::node_to_clog_stream(dag) {
             Ok(clog_dag) => clog_dag,
             Err(e) => {
                 eprintln!("Can't convert to a continued logarithm dag; {:?}", e);
+                buf.clear();
                 continue;
             }
         };
-        for _ in 0..20 {
-            println!("{:?}", clog_dag.next());
-        }
+        println!("{:?}", clog::terms_to_rational(clog_dag, 200));
         buf.clear();
     }
 }

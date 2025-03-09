@@ -121,7 +121,7 @@ With only a few weeks left in my 1L, I had limited time to throw together a calc
 
 [TODO image]
 
-I've only had time to implement Brabec's scheme; I have yet to get around to the trig nodes. So it's kinda unfinished, but I'm happy with it as a basic proof of concept. It does feel more elegant than the recursive real arithmetic described in the lobste.rs post above, but has all the same fundamental limitations.
+I've only had time to implement Brabec's scheme; I have yet to get around to implementing trig or integer ops, or really most of the bells and whistles you'd expect of a calculator app. So it's unfinished. But I'm happy with it as a basic proof of concept. It does feel much more elegant than the recursive real arithmetic described in the lobste.rs post above, even though it has all the same fundamental limitations.
 
 I'll come back to this at some point. Continued logarithms have gotten their hooks into me. Eventually I'll find a deeper theoretical result about them (or, at least, someone else will have). For now, this is what we content ourselves with :)
 

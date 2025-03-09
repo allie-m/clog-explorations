@@ -17,6 +17,46 @@ pub enum Term {
 pub trait Stream: Iterator<Item = Term> {}
 impl Stream for Box<dyn Stream> {}
 
+pub fn terms_to_rational<S>(mut stream: S, count: u32) -> (BigInt, BigInt)
+where
+    S: Stream,
+{
+    let mut mat: [BigInt; 4] = [1.into(), 0.into(), 0.into(), 1.into()];
+    for _ in 0..count {
+        match stream.next() {
+            Some(Term::Ord | Term::OrdSpec | Term::OrdSingularity) => {
+                mat[0] <<= 1;
+                mat[2] <<= 1;
+            }
+            Some(Term::DRec | Term::DRecSpec) => {
+                mat.swap(0, 1);
+                mat.swap(2, 3);
+                mat[0] += mat[1].clone();
+                mat[2] += mat[3].clone();
+            }
+            Some(Term::Rec | Term::RecSpec) => {
+                mat.swap(0, 1);
+                mat.swap(2, 3);
+            }
+            Some(Term::Neg) => {
+                mat[0] = -mat[0].clone();
+                mat[2] = -mat[2].clone();
+            }
+            None => {
+                mat[1] = mat[0].clone();
+                mat[3] = mat[2].clone();
+                break;
+            }
+        }
+    }
+    let g = mat[0].trailing_zeros().unwrap_or(0).min(mat[2].trailing_zeros().unwrap_or(0));
+    if mat[0] == 0.into() {
+        (0.into(), 1.into())
+    } else {
+        (mat[0].clone() >> g, mat[2].clone() >> g)
+    }
+}
+
 // pi
 // e
 
@@ -289,6 +329,27 @@ where
                     self.singularity = false;
                 }
 
+                // only proceed if we're well defined
+                if self.mat[4] == 0.into()
+                    || self.mat[5] == 0.into()
+                    || self.mat[6] == 0.into()
+                    || self.mat[7] == 0.into()
+                {
+                    continue;
+                }
+                if self.mat[0].sign() != self.mat[1].sign()
+                    || self.mat[1].sign() != self.mat[2].sign()
+                    || self.mat[2].sign() != self.mat[3].sign()
+                {
+                    continue;
+                }
+                if self.mat[4].sign() != self.mat[5].sign()
+                    || self.mat[5].sign() != self.mat[6].sign()
+                    || self.mat[6].sign() != self.mat[7].sign()
+                {
+                    continue;
+                }
+
                 // the normal stuff
                 if (self.mat[0] < 0.into()) != (self.mat[4] < 0.into()) {
                     self.mat[0] = -self.mat[0].clone();
@@ -415,6 +476,7 @@ where
     }
 }
 
+// TODO
 pub fn nlft<X, Y>(x: X, y: Y, mat: [BigInt; 8]) -> impl Stream
 where
     X: Stream,
