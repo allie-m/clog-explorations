@@ -53,6 +53,7 @@ def decompose_and_plot_infos(info):
 
 	#plt.scatter(values, clog_lengths)
 	plt.scatter(values, avg_mags)
+	#plt.scatter(avg_mags, clog_lengths)
 
 def _magnitudes_random_int32(i):
 	mag = random.randint(3, 32)
@@ -61,7 +62,7 @@ def _magnitudes_random_int32(i):
 plt.title("32-bit ints (equal sampling from each order of magnitude)")
 plt.xscale("log", base=2)
 plt.xlabel("Integer Size")
-plt.ylabel("Continued Logarithm Terms")
+plt.ylabel("Ratio of 1s to 0s (excepting initial block of 1s)")
 decompose_and_plot_infos(try_rationals(100000, _magnitudes_random_int32))
 decompose_and_plot_infos(worst_case(1))
 decompose_and_plot_infos(best_case())

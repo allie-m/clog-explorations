@@ -73,13 +73,29 @@ However, as Gosper points out in his original paper [[Gosper](https://www.tweedl
 
 Continued logarithms might have a better spread: each 1 term represents a binary order of magnitude, so that 2^128 requires only 128 bits; by the same token, 2^-128 requires just 129.
 
-Unfortunately, the way this representation spreads its precision remains problematic; so see that, let's check how many bits it takes to represent a bunch of random integers as continued logarithms.
+Unfortunately, the way this representation spreads its precision remains problematic. I haven't had the time this quarter to do a full mathematical analysis of the precision spread of continued logarithms --- instead, I have performed an ad-hoc numerical analysis.
+
+So, that in mind, let's check how many bits it takes to represent a bunch of random integers as continued logarithms.
 
 ![](clog-testing/rand32int-cloglen.png)
 
-Yikes. That's a lot of bits to represent just basic integers, and
+Yikes. That's a lot of bits to represent integers, and the worst case integers seem to follow an exponential trendline. Orange dots follow what I thought would be the worst case (one less than powers of 2), but there are integers above this trendline!
 
-[TODO]
+It's easier to see at lower orders of magnitude, where we sample more integers, and so more of them follow a pattern.
+
+![](clog-testing/rand32int-avgmag.png)
+
+Observe also that most integers have 2 or 3 1s for every 0, with some significant outliers; very few are 1:1. A randomly generated continued logarithm should have about a 1:1 ratio of 1s to 0s.
+
+This raises a natural follow up: if we randomly generate some continued logarithm strings, how many bits does it take to represent them as rationals?
+
+![](clog-testing/random-clogs.png)
+
+Hmm. The numbers continued logarithms are predisposed to represent are on average harder (about 1.5x harder) to represent as rationals.
+
+This demands further investigation. 1L (and my first two quarters of college) draw to a close, but the question of more precisely how continued logarithms distribute their representational power will surely continue to haunt me. I'll be back later.
+
+In the meantime:
 
 ## What's That? A Use for Continued Logarithms???
 
@@ -97,7 +113,7 @@ I had no idea what this could possibly be useful for.
 
 Until, that is, I stumbled across this [lobsters post](https://lobste.rs/s/xjrlj2/how_android_s_calculator_works_with_real) about Android's calculator, and the contortions required to get good arbitrary precision calculations.
 
-Left with only a few weeks left in my 1L, I had limited time to throw together a calculator.
+With only a few weeks left in my 1L, I had limited time to throw together a calculator.
 
 ## Behold, a basic CLI stack calculator
 
