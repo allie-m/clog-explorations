@@ -49,7 +49,14 @@ where
             }
         }
     }
-    let g = mat[0].trailing_zeros().unwrap_or(0).min(mat[2].trailing_zeros().unwrap_or(0));
+    let g = mat[0]
+        .trailing_zeros()
+        .unwrap_or(0)
+        .min(mat[2].trailing_zeros().unwrap_or(0));
+    if mat[0] < 0.into() && mat[2] < 0.into() {
+        mat[0] *= -1;
+        mat[2] *= -1;
+    }
     if mat[0] == 0.into() {
         (0.into(), 1.into())
     } else {
@@ -191,7 +198,7 @@ where
 }
 
 // speculative
-pub fn blft<X, Y>(x: X, y: Y, mat: [BigInt; 8]) -> impl Stream
+pub fn blft<X, Y>(x: X, y: Y, mat: [BigInt; 8], speculative: bool) -> impl Stream
 where
     X: Stream,
     Y: Stream,
@@ -202,6 +209,7 @@ where
         y: Y,
         mat: [BigInt; 8],
         singularity: bool,
+        speculative: bool,
     }
     impl<X: Stream, Y: Stream> Iterator for Blft<X, Y> {
         type Item = Term;
@@ -215,6 +223,13 @@ where
             }
 
             loop {
+                // no all negatives
+                // switch to all positive
+                if self.mat.iter().all(|m| m < &0.into()) {
+                    for item in self.mat.iter_mut() {
+                        *item *= -1;
+                    }
+                }
                 // ingest from x
                 match self.x.next() {
                     Some(Term::Ord | Term::OrdSpec | Term::OrdSingularity) => {
@@ -408,7 +423,8 @@ where
                     return Some(Term::Rec);
                 }
                 // the following are SPECULATIVE
-                else if self.mat[4] < self.mat[0]
+                else if self.speculative
+                    && self.mat[4] < self.mat[0]
                     && self.mat[0] < (self.mat[4].clone() << 2)
                     && self.mat[5] < self.mat[1]
                     && self.mat[1] < (self.mat[5].clone() << 2)
@@ -433,7 +449,8 @@ where
                         self.mat[7] <<= 1;
                     }
                     return Some(Term::OrdSpec);
-                } else if self.mat[4] < (self.mat[0].clone() << 1)
+                } else if self.speculative
+                    && self.mat[4] < (self.mat[0].clone() << 1)
                     && self.mat[0] < self.mat[4].clone() << 1
                     && self.mat[5] < (self.mat[1].clone() << 1)
                     && self.mat[1] < self.mat[5].clone() << 1
@@ -452,7 +469,8 @@ where
                     self.mat.swap(3, 7);
                     self.singularity = true;
                     return Some(Term::DRecSpec);
-                } else if self.mat[4].clone().into_parts().1 > self.mat[0].clone().into_parts().1
+                } else if self.speculative
+                    && self.mat[4].clone().into_parts().1 > self.mat[0].clone().into_parts().1
                     && self.mat[5].clone().into_parts().1 > self.mat[1].clone().into_parts().1
                     && self.mat[6].clone().into_parts().1 > self.mat[2].clone().into_parts().1
                     && self.mat[7].clone().into_parts().1 > self.mat[3].clone().into_parts().1
@@ -473,6 +491,7 @@ where
         y,
         mat,
         singularity: false,
+        speculative,
     }
 }
 

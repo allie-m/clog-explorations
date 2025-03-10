@@ -9,7 +9,43 @@ fn main() {
     let mut buf = String::new();
     // we're just not gonna deal with io errors
     // they'll get sent to stderr, whatever
+    enum OutFormat {
+        Rational,
+        Decimal,
+        Interval,
+        ClogTerms,
+    }
+    struct Cfg {
+        speculative: bool,
+        max_terms: u32,
+        out_format: OutFormat,
+    }
+    let mut cfg = Cfg {
+        speculative: true,
+        max_terms: 200,
+        out_format: OutFormat::Rational,
+    };
     while stdin.read_line(&mut buf).unwrap() > 0 {
+        if buf.starts_with("cfg ") {
+            let mut iter = buf.split(" ");
+            let _ = iter.next().unwrap();
+            match iter.next().map(|s| s.trim()) {
+                Some(item) => match item {
+                    "speculative" => cfg.speculative = true,
+                    "exact" => cfg.speculative = false,
+                    "max_terms" => {
+                        if let Some(Ok(item)) = iter.next().map(|i| i.parse()) {
+                            cfg.max_terms = item
+                        }
+                    }
+                    // TODO more
+                    _ => {}
+                },
+                None => {}
+            }
+            buf.clear();
+            continue;
+        }
         let dag = match parse::roll_stack_expression(&buf) {
             Ok(dag) => dag,
             Err(e) => {
@@ -19,7 +55,7 @@ fn main() {
             }
         };
         println!("{:?}", dag);
-        let clog_dag = match parse::node_to_clog_stream(dag) {
+        let clog_dag = match parse::node_to_clog_stream(dag, cfg.speculative) {
             Ok(clog_dag) => clog_dag,
             Err(e) => {
                 eprintln!("Can't convert to a continued logarithm dag; {:?}", e);
@@ -27,7 +63,14 @@ fn main() {
                 continue;
             }
         };
-        println!("{:?}", clog::terms_to_rational(clog_dag, 200));
+        match cfg.out_format {
+            OutFormat::Decimal => todo!(),
+            OutFormat::Rational => {
+                println!("{:?}", clog::terms_to_rational(clog_dag, cfg.max_terms));
+            }
+            OutFormat::Interval => todo!(),
+            OutFormat::ClogTerms => todo!(),
+        }
         buf.clear();
     }
 }

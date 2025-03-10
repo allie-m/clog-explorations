@@ -79,7 +79,10 @@ pub enum RollExprError {
 
 // as written, this is EXTREMELY BAREBONES
 // it ONLY DOES BASIC ARITHMETIC
-pub fn node_to_clog_stream(node: Box<Node>) -> Result<Box<dyn crate::clog::Stream>, ()> {
+pub fn node_to_clog_stream(
+    node: Box<Node>,
+    speculative: bool,
+) -> Result<Box<dyn crate::clog::Stream>, ()> {
     use crate::clog::*;
     Ok(match *node {
         Node::Constant { kind: _ } => Err(())?,
@@ -88,13 +91,33 @@ pub fn node_to_clog_stream(node: Box<Node>) -> Result<Box<dyn crate::clog::Strea
         }
         Node::OneChild(_kind, _child) => Err(())?,
         Node::TwoChildren(kind, c1, c2) => {
-            let c1 = node_to_clog_stream(c1)?;
-            let c2 = node_to_clog_stream(c2)?;
+            let c1 = node_to_clog_stream(c1, speculative)?;
+            let c2 = node_to_clog_stream(c2, speculative)?;
             Box::new(match kind {
-                TwoChildren::Add => blft(c1, c2, [0, 1, 1, 0, 0, 0, 0, 1].map(|i| i.into())),
-                TwoChildren::Sub => blft(c1, c2, [0, 1, -1, 0, 0, 0, 0, 1].map(|i| i.into())),
-                TwoChildren::Mul => blft(c1, c2, [1, 0, 0, 0, 0, 0, 0, 1].map(|i| i.into())),
-                TwoChildren::Div => blft(c1, c2, [0, 1, 0, 0, 0, 0, 1, 0].map(|i| i.into())),
+                TwoChildren::Add => blft(
+                    c1,
+                    c2,
+                    [0, 1, 1, 0, 0, 0, 0, 1].map(|i| i.into()),
+                    speculative,
+                ),
+                TwoChildren::Sub => blft(
+                    c1,
+                    c2,
+                    [0, 1, -1, 0, 0, 0, 0, 1].map(|i| i.into()),
+                    speculative,
+                ),
+                TwoChildren::Mul => blft(
+                    c1,
+                    c2,
+                    [1, 0, 0, 0, 0, 0, 0, 1].map(|i| i.into()),
+                    speculative,
+                ),
+                TwoChildren::Div => blft(
+                    c1,
+                    c2,
+                    [0, 1, 0, 0, 0, 0, 1, 0].map(|i| i.into()),
+                    speculative,
+                ),
                 _ => Err(())?,
             })
         }

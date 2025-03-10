@@ -109,7 +109,7 @@ Gosper says that continued logarithms are better positioned than continued fract
 
 This idea, left vague by Gosper, was elaborated on by Toma ́s Brabec in a 2020 paper, [Speculatively Redundant Continued Logarithm Representation](https://ieeexplore.ieee.org/document/5467052).
 
-Brabec describes a continued logarithm scheme with 8 terms, 4 non-speculative and 4 speculative, designed to handle real arithmetic. It doesn't solve the precision distribution problem. In fact, it makes the problem much worse by adding yet more continued logarithm terms. But, it does allow you to mix real and rational arithmetic to arbitrary precision without ever choking (even if some situations, like sqrt(2) * sqrt(2), will only ever emit speculative terms (although the redundancy does make some numbers more concise to represent sometimes??? It's confusing I haven't looked much into it)).
+Brabec describes a continued logarithm scheme with 8 terms, 4 non-speculative and 4 speculative, designed to handle real arithmetic. It doesn't solve the precision distribution problem. In fact, it makes the problem much worse by adding yet more continued logarithm terms. But, it does allow you to mix real and rational arithmetic to arbitrary precision without ever choking --- even if some situations, like sqrt(2) * sqrt(2), will only ever emit speculative terms. (Also, side note, the redundancy does make some numbers more concise to represent??? It's confusing I haven't looked much into it... but it would be nice if they turned out to be the key to preventing the huge explosion in complexity for certain numbers).
 
 I had no idea what this could possibly be useful for.
 
