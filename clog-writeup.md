@@ -1,18 +1,6 @@
 1L Part III: Continued Logarithms Are a Flawed Way to do Rational Arithmetic
 =
 
-TODO: DO THE PRESENTATION!!!!!!
-
-THE QUESTIONS:
-- What did you set out to accomplish?
-- What did you actually accomplish?
-- What did you learn? <--- IMPORTANT
-- If you continued the project, where would it go from here?
-TO DO: (8 min target, 10 min HARD LIMIT)
-- Finish writeup
-- Calculator
-- Demo (+ slides as bookends?)
-
 ...but perhaps an underrated way to mix real and rational arithmetic.
 
 Continued logarithms never caught on as a representation for doing computer arithmetic.
