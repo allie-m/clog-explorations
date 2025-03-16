@@ -214,15 +214,15 @@ where
     impl<X: Stream, Y: Stream> Iterator for Blft<X, Y> {
         type Item = Term;
         fn next(&mut self) -> Option<Term> {
-            if self.mat[4] == 0.into()
-                && self.mat[5] == 0.into()
-                && self.mat[6] == 0.into()
-                && self.mat[7] == 0.into()
-            {
-                return None;
-            }
-
             loop {
+                // println!("{:?}", self.mat.iter().map(|i| i.bits()).max().unwrap());
+                if self.mat[4] == 0.into()
+                    && self.mat[5] == 0.into()
+                    && self.mat[6] == 0.into()
+                    && self.mat[7] == 0.into()
+                {
+                    return None;
+                }
                 // no all negatives
                 // switch to all positive
                 if self.mat.iter().all(|m| m < &0.into()) {
