@@ -1,5 +1,6 @@
 import pyrtl
 from pyrtl.corecircuits import *
+from dataclasses import dataclass
 from enum import IntEnum
 
 # dials we can fiddle with
@@ -36,40 +37,32 @@ def abs_val(val):
     out <<= mux(signed_lt(val, 0), 0 - val, val)
     return out
 
-# saturating versions of neg, signed_add, and shift_left_arithmetic
-# that also TODO sets the out_inexact flag
+# there are exactly 76 invocations of these saturate functions
+# in the current implementation of blfts
+# TODO find some way to have these have a big bit or output
+
+# def s_neg(val): return 0 - val
+# def s_add(a, b): return signed_add(a, b)
+# def s_shift_left(val, shamt): return shift_left_arithmetic(val, shamt)
 
 def s_neg(val):
-    # TODO
-    return 0 - val
+    is_min = val == pyrtl.Const(MIN_VAL, bitwidth=COEF_WIDTH)
+    return mux(is_min, 0 - val, MAX_VAL)
 
 def s_add(a, b):
     the_sum = signed_add(a, b)
-    out = pyrtl.WireVector(bitwidth=COEF_WIDTH)
-    with pyrtl.conditional_assignment:
-        # (+) + (+) = (- | 0)
-        with signed_lt(0, a) & signed_lt(0, b) & signed_le(the_sum, 0):
-            out |= pyrtl.Const(MAX_VAL, bitwidth=COEF_WIDTH)
-        # (-) + (-) = (+ | 0)
-        with signed_lt(a, 0) & signed_lt(b, 0) & signed_le(0, the_sum):
-            out |= pyrtl.Const(MIN_VAL, bitwidth=COEF_WIDTH)
-        # no overflow
-        with pyrtl.otherwise:
-            out |= the_sum
-    return out
+    # (+) + (+) = (- | 0)
+    overflow_pos = signed_lt(0, a) & signed_lt(0, b) & signed_le(the_sum, 0)
+    # (-) + (-) = (+ | 0)
+    overflow_neg = signed_lt(a, 0) & signed_lt(b, 0) & signed_le(0, the_sum)
+    i = mux(overflow_pos, the_sum, pyrtl.Const(MAX_VAL, bitwidth=COEF_WIDTH))
+    return mux(overflow_neg, i, pyrtl.Const(MIN_VAL, bitwidth=COEF_WIDTH))
 
 def s_shift_left(val, shamt):
     shifted = shift_left_arithmetic(val, shamt)
-    out = pyrtl.WireVector(bitwidth=COEF_WIDTH)
-    with pyrtl.conditional_assignment:
-        # (+) << shamt = (-)
-        # (you can't shift into 0 from +)
-        with signed_lt(0, val) & signed_lt(shifted, 0):
-            out |= pyrtl.Const(MAX_VAL, bitwidth=COEF_WIDTH)
-        # (-) << shamt = (+ | 0)
-        with signed_lt(val, 0) & signed_le(0, shifted):
-            out |= pyrtl.Const(MIN_VAL, bitwidth=COEF_WIDTH)
-        # no overflow
-        with pyrtl.otherwise:
-            out |= shifted
-    return out
+    # (+) << shamt = (-)
+    overflow_pos = signed_lt(0, val) & signed_lt(shifted, 0)
+    # (-) << shamt = (+ | 0)
+    overflow_neg = signed_lt(val, 0) & signed_le(0, shifted)
+    i = mux(overflow_pos, shifted, pyrtl.Const(MAX_VAL, bitwidth=COEF_WIDTH))
+    return mux(overflow_neg, i, pyrtl.Const(MIN_VAL, bitwidth=COEF_WIDTH))
