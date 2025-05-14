@@ -352,128 +352,127 @@ where
                 {
                     continue;
                 }
-                if self.mat[0].sign() != self.mat[1].sign()
-                    || self.mat[1].sign() != self.mat[2].sign()
-                    || self.mat[2].sign() != self.mat[3].sign()
-                {
-                    continue;
-                }
-                if self.mat[4].sign() != self.mat[5].sign()
-                    || self.mat[5].sign() != self.mat[6].sign()
-                    || self.mat[6].sign() != self.mat[7].sign()
-                {
-                    continue;
-                }
 
-                // the normal stuff
-                if (self.mat[0] < 0.into()) != (self.mat[4] < 0.into()) {
-                    self.mat[0] = -self.mat[0].clone();
-                    self.mat[1] = -self.mat[1].clone();
-                    self.mat[2] = -self.mat[2].clone();
-                    self.mat[3] = -self.mat[3].clone();
-                    return Some(Term::Neg);
-                } else if (self.mat[0].clone() >> 1) >= self.mat[4]
-                    && (self.mat[1].clone() >> 1) >= self.mat[5]
-                    && (self.mat[2].clone() >> 1) >= self.mat[6]
-                    && (self.mat[3].clone() >> 1) >= self.mat[7]
+                if !(self.mat[0].sign() != self.mat[1].sign()
+                    || self.mat[1].sign() != self.mat[2].sign()
+                    || self.mat[2].sign() != self.mat[3].sign())
+                    && !(self.mat[4].sign() != self.mat[5].sign()
+                        || self.mat[5].sign() != self.mat[6].sign()
+                        || self.mat[6].sign() != self.mat[7].sign())
                 {
-                    if !self.mat[0].bit(0)
-                        && !self.mat[1].bit(0)
-                        && !self.mat[2].bit(0)
-                        && !self.mat[3].bit(0)
+                    self.singularity = false;
+                    // the normal stuff
+                    if (self.mat[0] < 0.into()) != (self.mat[4] < 0.into()) {
+                        self.mat[0] = -self.mat[0].clone();
+                        self.mat[1] = -self.mat[1].clone();
+                        self.mat[2] = -self.mat[2].clone();
+                        self.mat[3] = -self.mat[3].clone();
+                        return Some(Term::Neg);
+                    } else if (self.mat[0].clone() >> 1) >= self.mat[4]
+                        && (self.mat[1].clone() >> 1) >= self.mat[5]
+                        && (self.mat[2].clone() >> 1) >= self.mat[6]
+                        && (self.mat[3].clone() >> 1) >= self.mat[7]
                     {
-                        self.mat[0] >>= 1;
-                        self.mat[1] >>= 1;
-                        self.mat[2] >>= 1;
-                        self.mat[3] >>= 1;
-                    } else {
-                        self.mat[4] <<= 1;
-                        self.mat[5] <<= 1;
-                        self.mat[6] <<= 1;
-                        self.mat[7] <<= 1;
+                        if !self.mat[0].bit(0)
+                            && !self.mat[1].bit(0)
+                            && !self.mat[2].bit(0)
+                            && !self.mat[3].bit(0)
+                        {
+                            self.mat[0] >>= 1;
+                            self.mat[1] >>= 1;
+                            self.mat[2] >>= 1;
+                            self.mat[3] >>= 1;
+                        } else {
+                            self.mat[4] <<= 1;
+                            self.mat[5] <<= 1;
+                            self.mat[6] <<= 1;
+                            self.mat[7] <<= 1;
+                        }
+                        return Some(Term::Ord);
+                    } else if self.mat[0] >= self.mat[4]
+                        && self.mat[1] >= self.mat[5]
+                        && self.mat[2] >= self.mat[6]
+                        && self.mat[3] >= self.mat[7]
+                        && (self.mat[0].clone() >> 1) < self.mat[4]
+                        && (self.mat[1].clone() >> 1) < self.mat[5]
+                        && (self.mat[2].clone() >> 1) < self.mat[6]
+                        && (self.mat[3].clone() >> 1) < self.mat[7]
+                    {
+                        self.mat[0] -= self.mat[4].clone();
+                        self.mat[1] -= self.mat[5].clone();
+                        self.mat[2] -= self.mat[6].clone();
+                        self.mat[3] -= self.mat[7].clone();
+                        self.mat.swap(0, 4);
+                        self.mat.swap(1, 5);
+                        self.mat.swap(2, 6);
+                        self.mat.swap(3, 7);
+                        return Some(Term::DRec);
+                    } else if self.mat[0] < self.mat[4]
+                        && self.mat[1] < self.mat[5]
+                        && self.mat[2] < self.mat[6]
+                        && self.mat[3] < self.mat[7]
+                    {
+                        self.mat.swap(0, 4);
+                        self.mat.swap(1, 5);
+                        self.mat.swap(2, 6);
+                        self.mat.swap(3, 7);
+                        return Some(Term::Rec);
                     }
-                    return Some(Term::Ord);
-                } else if self.mat[0] >= self.mat[4]
-                    && self.mat[1] >= self.mat[5]
-                    && self.mat[2] >= self.mat[6]
-                    && self.mat[3] >= self.mat[7]
-                    && (self.mat[0].clone() >> 1) < self.mat[4]
-                    && (self.mat[1].clone() >> 1) < self.mat[5]
-                    && (self.mat[2].clone() >> 1) < self.mat[6]
-                    && (self.mat[3].clone() >> 1) < self.mat[7]
-                {
-                    self.mat[0] -= self.mat[4].clone();
-                    self.mat[1] -= self.mat[5].clone();
-                    self.mat[2] -= self.mat[6].clone();
-                    self.mat[3] -= self.mat[7].clone();
-                    self.mat.swap(0, 4);
-                    self.mat.swap(1, 5);
-                    self.mat.swap(2, 6);
-                    self.mat.swap(3, 7);
-                    return Some(Term::DRec);
-                } else if self.mat[0] < self.mat[4]
-                    && self.mat[1] < self.mat[5]
-                    && self.mat[2] < self.mat[6]
-                    && self.mat[3] < self.mat[7]
-                {
-                    self.mat.swap(0, 4);
-                    self.mat.swap(1, 5);
-                    self.mat.swap(2, 6);
-                    self.mat.swap(3, 7);
-                    return Some(Term::Rec);
+                    // the following are SPECULATIVE
+                    else if self.speculative
+                        && self.mat[4] < self.mat[0]
+                        && self.mat[0] < (self.mat[4].clone() << 2)
+                        && self.mat[5] < self.mat[1]
+                        && self.mat[1] < (self.mat[5].clone() << 2)
+                        && self.mat[6] < self.mat[2]
+                        && self.mat[2] < (self.mat[6].clone() << 2)
+                        && self.mat[7] < self.mat[3]
+                        && self.mat[3] < (self.mat[7].clone() << 2)
+                    {
+                        if !self.mat[0].bit(0)
+                            && !self.mat[1].bit(0)
+                            && !self.mat[2].bit(0)
+                            && !self.mat[3].bit(0)
+                        {
+                            self.mat[0] >>= 1;
+                            self.mat[1] >>= 1;
+                            self.mat[2] >>= 1;
+                            self.mat[3] >>= 1;
+                        } else {
+                            self.mat[4] <<= 1;
+                            self.mat[5] <<= 1;
+                            self.mat[6] <<= 1;
+                            self.mat[7] <<= 1;
+                        }
+                        return Some(Term::OrdSpec);
+                    } else if self.speculative
+                        && self.mat[4] < (self.mat[0].clone() << 1)
+                        && self.mat[0] < self.mat[4].clone() << 1
+                        && self.mat[5] < (self.mat[1].clone() << 1)
+                        && self.mat[1] < self.mat[5].clone() << 1
+                        && self.mat[6] < (self.mat[2].clone() << 1)
+                        && self.mat[2] < self.mat[6].clone() << 1
+                        && self.mat[7] < (self.mat[3].clone() << 1)
+                        && self.mat[3] < self.mat[7].clone() << 1
+                    {
+                        self.mat[0] -= self.mat[4].clone();
+                        self.mat[1] -= self.mat[5].clone();
+                        self.mat[2] -= self.mat[6].clone();
+                        self.mat[3] -= self.mat[7].clone();
+                        self.mat.swap(0, 4);
+                        self.mat.swap(1, 5);
+                        self.mat.swap(2, 6);
+                        self.mat.swap(3, 7);
+                        self.singularity = true;
+                        return Some(Term::DRecSpec);
+                    }
                 }
-                // the following are SPECULATIVE
-                else if self.speculative
-                    && self.mat[4] < self.mat[0]
-                    && self.mat[0] < (self.mat[4].clone() << 2)
-                    && self.mat[5] < self.mat[1]
-                    && self.mat[1] < (self.mat[5].clone() << 2)
-                    && self.mat[6] < self.mat[2]
-                    && self.mat[2] < (self.mat[6].clone() << 2)
-                    && self.mat[7] < self.mat[3]
-                    && self.mat[3] < (self.mat[7].clone() << 2)
-                {
-                    if !self.mat[0].bit(0)
-                        && !self.mat[1].bit(0)
-                        && !self.mat[2].bit(0)
-                        && !self.mat[3].bit(0)
-                    {
-                        self.mat[0] >>= 1;
-                        self.mat[1] >>= 1;
-                        self.mat[2] >>= 1;
-                        self.mat[3] >>= 1;
-                    } else {
-                        self.mat[4] <<= 1;
-                        self.mat[5] <<= 1;
-                        self.mat[6] <<= 1;
-                        self.mat[7] <<= 1;
-                    }
-                    return Some(Term::OrdSpec);
-                } else if self.speculative
-                    && self.mat[4] < (self.mat[0].clone() << 1)
-                    && self.mat[0] < self.mat[4].clone() << 1
-                    && self.mat[5] < (self.mat[1].clone() << 1)
-                    && self.mat[1] < self.mat[5].clone() << 1
-                    && self.mat[6] < (self.mat[2].clone() << 1)
-                    && self.mat[2] < self.mat[6].clone() << 1
-                    && self.mat[7] < (self.mat[3].clone() << 1)
-                    && self.mat[3] < self.mat[7].clone() << 1
-                {
-                    self.mat[0] -= self.mat[4].clone();
-                    self.mat[1] -= self.mat[5].clone();
-                    self.mat[2] -= self.mat[6].clone();
-                    self.mat[3] -= self.mat[7].clone();
-                    self.mat.swap(0, 4);
-                    self.mat.swap(1, 5);
-                    self.mat.swap(2, 6);
-                    self.mat.swap(3, 7);
-                    self.singularity = true;
-                    return Some(Term::DRecSpec);
-                } else if self.speculative
-                    && self.mat[4].clone().into_parts().1 > self.mat[0].clone().into_parts().1
-                    && self.mat[5].clone().into_parts().1 > self.mat[1].clone().into_parts().1
-                    && self.mat[6].clone().into_parts().1 > self.mat[2].clone().into_parts().1
-                    && self.mat[7].clone().into_parts().1 > self.mat[3].clone().into_parts().1
+                if self.speculative && !self.singularity
+                    // 0s ARE allowed in the denominator; we send to [-inf, -1) U (1, inf]
+                    && self.mat[0].clone().into_parts().1 < self.mat[4].clone().into_parts().1
+                    && self.mat[1].clone().into_parts().1 < self.mat[5].clone().into_parts().1
+                    && self.mat[2].clone().into_parts().1 < self.mat[6].clone().into_parts().1
+                    && self.mat[3].clone().into_parts().1 < self.mat[7].clone().into_parts().1
                 {
                     self.mat.swap(0, 4);
                     self.mat.swap(1, 5);

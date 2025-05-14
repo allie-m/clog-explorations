@@ -3,6 +3,7 @@ https://www.tweedledum.com/rwg/cfup.htm <=== THE FOUNDATIONAL TEXT
 
 Speculatively Redundant Continued Logarithm Representation (2010, Brabec)
 https://ieeexplore.ieee.org/document/5467052 <=== important innovation for arbitrary-precision clogs
+|--(mathematical justification)https://www.researchgate.net/publication/242558859_REDUNDANT_CONT_LOG_REPRESENTATION_PROOF_OF_CONTRACTIVITY
 
 Hardware Implementation of Continued Logarithm Arithmetic (2006, Brabec)
 https://ieeexplore.ieee.org/document/4402399 <=== important clog investigation, cool hardware stuff

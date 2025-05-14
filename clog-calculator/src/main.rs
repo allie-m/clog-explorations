@@ -66,6 +66,7 @@ fn main() {
         match cfg.out_format {
             OutFormat::Decimal => todo!(),
             OutFormat::Rational => {
+                // println!("{:?}", clog_dag.collect::<Vec<_>>());
                 println!("{:?}", clog::terms_to_rational(clog_dag, cfg.max_terms));
             }
             OutFormat::Interval => todo!(),
