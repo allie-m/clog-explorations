@@ -32,18 +32,15 @@ class Term(IntEnum):
 
 # helper circuits
 
-def abs_val(val):
-    out = pyrtl.WireVector(bitwidth=val.bitwidth)
-    out <<= mux(signed_lt(val, 0), 0 - val, val)
-    return out
+# TODO find some way to have these have a big bit-or'd output
 
-# there are exactly 76 invocations of these saturate functions
-# in the current implementation of blfts
-# TODO find some way to have these have a big bit or output
-
+# def abs_val(val): return mux(signed_lt(val, 0), 0 - val, val)
 # def s_neg(val): return 0 - val
 # def s_add(a, b): return signed_add(a, b)
 # def s_shift_left(val, shamt): return shift_left_arithmetic(val, shamt)
+
+def abs_val(val):
+    return mux(signed_lt(val, 0), s_neg(val), val)
 
 def s_neg(val):
     is_min = val == pyrtl.Const(MIN_VAL, bitwidth=COEF_WIDTH)

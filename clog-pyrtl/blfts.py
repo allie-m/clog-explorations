@@ -22,7 +22,7 @@ class BLFT:
     z: pyrtl.Output
     # out_inexact: pyrtl.Output
 
-def blft() -> BLFT:
+def blft(name_prefix) -> BLFT:
     # i could have used an rf memblock with 8 read and write ports
     # but this is easier
     # too much swapping stuff around to deal with that
@@ -37,19 +37,19 @@ def blft() -> BLFT:
     singularity = pyrtl.Register(bitwidth=1)
 
     # TODO MAKE THE NAMES OPTIONAL
-    ctrl = pyrtl.Input(bitwidth=CTRL_WIDTH, name='ctrl')
+    ctrl = pyrtl.Input(bitwidth=CTRL_WIDTH, name=name_prefix+'ctrl')
     #in_inexact = pyrtl.Input(bitwidth=1, name='in_inexact')
-    x = pyrtl.Input(bitwidth=TERM_WIDTH, name='in_x')
-    y = pyrtl.Input(bitwidth=TERM_WIDTH, name='in_y')
-    z = pyrtl.Output(bitwidth=TERM_WIDTH, name='out_z')
+    x = pyrtl.Input(bitwidth=TERM_WIDTH, name=name_prefix+'in_x')
+    y = pyrtl.Input(bitwidth=TERM_WIDTH, name=name_prefix+'in_y')
+    z = pyrtl.Output(bitwidth=TERM_WIDTH, name=name_prefix+'out_z')
     #out_inexact = pyrtl.Output(bitwidth=1, name='out_inexact')
 
     # (intermediate flags and wires defined for egestion)
-    num_agreed   = pyrtl.WireVector(bitwidth=1, name='e_num')
-    den_agreed   = pyrtl.WireVector(bitwidth=1, name='e_den')
-    den_zeros    = pyrtl.WireVector(bitwidth=1, name='e_zeros')
-    well_defined = pyrtl.WireVector(bitwidth=1, name='e_welldf')
-    all_neven    = pyrtl.WireVector(bitwidth=1, name='e_nums_even')
+    num_agreed   = pyrtl.WireVector(bitwidth=1)#, name=name_prefix+'e_num')
+    den_agreed   = pyrtl.WireVector(bitwidth=1)#, name=name_prefix+'e_den')
+    den_zeros    = pyrtl.WireVector(bitwidth=1)#, name=name_prefix+'e_zeros')
+    well_defined = pyrtl.WireVector(bitwidth=1)#, name=name_prefix+'e_welldf')
+    all_neven    = pyrtl.WireVector(bitwidth=1)#, name=name_prefix+'e_nums_even')
     # (intermediate mat coefficients with the signs flipped if they're all negative)
     i0 = pyrtl.WireVector(bitwidth=COEF_WIDTH)
     i1 = pyrtl.WireVector(bitwidth=COEF_WIDTH)
@@ -330,18 +330,18 @@ def blft() -> BLFT:
                 singularity.next |= singularity
     return BLFT([m0, m1, m2, m3, m4, m5, m6, m7], singularity, ctrl, x, y, z)
 
-b = blft()
-pyrtl.optimize()
-# timing = pyrtl.TimingAnalysis()
-# timing.print_max_length()
-# critical_path_info = timing.critical_path()
-# print(list(map(lambda l: len(l[1]), critical_path_info)))
-logic_area, mem_area = pyrtl.area_estimation(tech_in_nm=65)
-est_area = logic_area + mem_area
-print("Estimated area of block", est_area, "sq mm")
-
 # test it :D
 if __name__ == "__main__":
+    b = blft("")
+    pyrtl.optimize()
+    # timing = pyrtl.TimingAnalysis()
+    # timing.print_max_length()
+    # critical_path_info = timing.critical_path()
+    # print(list(map(lambda l: len(l[1]), critical_path_info)))
+    logic_area, mem_area = pyrtl.area_estimation(tech_in_nm=65)
+    est_area = logic_area + mem_area # (mem_area is 0 since we only use registers)
+    print("Estimated logic area", est_area, "mm^2")
+    
     ctrls = [Control.X_IN, Control.Y_IN, Control.X_IN, Control.Y_IN, Control.Y_IN, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.NONE]
     xs    = [Term.DREC, Term.NONE, Term.INF,  Term.NONE, Term.NONE, Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
     ys    = [Term.NONE, Term.ORD,  Term.NONE, Term.DREC, Term.INF,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
