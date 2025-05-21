@@ -47,7 +47,7 @@ def s_neg(val):
     return mux(is_min, 0 - val, MAX_VAL)
 
 def s_add(a, b):
-    the_sum = signed_add(a, b)
+    the_sum = signed_add(a, b)[:COEF_WIDTH]
     # (+) + (+) = (- | 0)
     overflow_pos = signed_lt(0, a) & signed_lt(0, b) & signed_le(the_sum, 0)
     # (-) + (-) = (+ | 0)

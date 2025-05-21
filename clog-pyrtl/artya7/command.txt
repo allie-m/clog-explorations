@@ -1,0 +1,4 @@
+# maybe we use f4pga instead of yowasp?
+openFPGALoader --Version
+openFPGAloader -b arty program.bit --verify
+# (TODO)

@@ -334,6 +334,7 @@ def blft(name_prefix) -> BLFT:
 if __name__ == "__main__":
     b = blft("")
     pyrtl.optimize()
+    print(len(pyrtl.working_block().logic_subset()))
     # timing = pyrtl.TimingAnalysis()
     # timing.print_max_length()
     # critical_path_info = timing.critical_path()
