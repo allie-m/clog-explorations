@@ -10,12 +10,13 @@ MIN_VAL = -(2**(COEF_WIDTH - 1))
 ENABLE_SPECULATIVE_EGEST = pyrtl.WireVector(bitwidth=1, name='cfg_speculative_egest')
 ENABLE_SPECULATIVE_EGEST <<= 1 # 0 for no speculative egest (could be a pyrtl.Const... whatever)
 
-CTRL_WIDTH = 2
+CTRL_WIDTH = 3
 class Control(IntEnum):
-    NONE  = 0b00
-    X_IN  = 0b01
-    Y_IN  = 0b10
-    Z_OUT = 0b11
+    NONE  = 0b000
+    X_IN  = 0b001
+    Y_IN  = 0b010
+    Z_OUT = 0b011
+    RESET = 0b100
 
 TERM_WIDTH = 4
 class Term(IntEnum):

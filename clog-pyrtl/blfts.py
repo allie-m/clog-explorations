@@ -22,7 +22,9 @@ class BLFT:
     z: pyrtl.Output
     # out_inexact: pyrtl.Output
 
-def blft(name_prefix) -> BLFT:
+# reset_mat_wires should be a list with 8 "things that can be wired into a register.next"
+# corresponding to each coefficient in the blft's mat
+def blft(name_prefix, reset_mat_wires) -> BLFT:
     # i could have used an rf memblock with 8 read and write ports
     # but this is easier
     # too much swapping stuff around to deal with that
@@ -36,7 +38,6 @@ def blft(name_prefix) -> BLFT:
     m7 = pyrtl.Register(bitwidth=COEF_WIDTH)
     singularity = pyrtl.Register(bitwidth=1)
 
-    # TODO MAKE THE NAMES OPTIONAL
     ctrl = pyrtl.Input(bitwidth=CTRL_WIDTH, name=name_prefix+'ctrl')
     #in_inexact = pyrtl.Input(bitwidth=1, name='in_inexact')
     x = pyrtl.Input(bitwidth=TERM_WIDTH, name=name_prefix+'in_x')
@@ -61,6 +62,19 @@ def blft(name_prefix) -> BLFT:
     i7 = pyrtl.WireVector(bitwidth=COEF_WIDTH)
 
     with pyrtl.conditional_assignment:
+        # nothing happens :P
+        with ctrl == Control.NONE: pass
+        # allow the user to reset the registers
+        with ctrl == Control.RESET:
+            m0.next |= reset_mat_wires[0]
+            m1.next |= reset_mat_wires[1]
+            m2.next |= reset_mat_wires[2]
+            m3.next |= reset_mat_wires[3]
+            m4.next |= reset_mat_wires[4]
+            m5.next |= reset_mat_wires[5]
+            m6.next |= reset_mat_wires[6]
+            m7.next |= reset_mat_wires[7]
+            singularity.next |= 0
         # ingest x
         with ctrl == Control.X_IN:
             # (z and singularity are irrelevant; preserve singularity, emit nothing)
@@ -330,9 +344,9 @@ def blft(name_prefix) -> BLFT:
                 singularity.next |= singularity
     return BLFT([m0, m1, m2, m3, m4, m5, m6, m7], singularity, ctrl, x, y, z)
 
-# test it :D
+# testing it :D
 if __name__ == "__main__":
-    b = blft("")
+    b = blft("", [0, 2, 1, 0, 0, 0, 0, 1])
     pyrtl.optimize()
     print(len(pyrtl.working_block().logic_subset()))
     # timing = pyrtl.TimingAnalysis()
@@ -343,15 +357,17 @@ if __name__ == "__main__":
     est_area = logic_area + mem_area # (mem_area is 0 since we only use registers)
     print("Estimated logic area", est_area, "mm^2")
     
-    ctrls = [Control.X_IN, Control.Y_IN, Control.X_IN, Control.Y_IN, Control.Y_IN, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.NONE]
-    xs    = [Term.DREC, Term.NONE, Term.INF,  Term.NONE, Term.NONE, Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
-    ys    = [Term.NONE, Term.ORD,  Term.NONE, Term.DREC, Term.INF,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
-    tmat = {b.mat[0]: 0, b.mat[1]: 2, b.mat[2]: 1, b.mat[3]: 0,
-            b.mat[4]: 0, b.mat[5]: 0, b.mat[6]: 0, b.mat[7]: 1,
-            b.singularity: 0}
+    ctrls = [Control.RESET, Control.X_IN, Control.Y_IN, Control.X_IN, Control.Y_IN, Control.Y_IN, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.NONE]
+    xs    = [Term.NONE, Term.DREC, Term.NONE, Term.INF,  Term.NONE, Term.NONE, Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
+    ys    = [Term.NONE, Term.NONE, Term.ORD,  Term.NONE, Term.DREC, Term.INF,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
+    tmat = {}
     sim_trace = pyrtl.SimulationTrace()
     sim = pyrtl.Simulation(tracer=sim_trace, register_value_map=tmat)
     sim.step_multiple({'ctrl': ctrls, 'in_x': xs, 'in_y': ys})
     sim_trace.render_trace(repr_per_name={'ctrl': pyrtl.enum_name(Control), 'in_x': pyrtl.enum_name(Term), 'in_y': pyrtl.enum_name(Term), 'out_z': pyrtl.enum_name(Term)})
     print(sim.inspect(b.mat[0]), sim.inspect(b.mat[1]), sim.inspect(b.mat[2]), sim.inspect(b.mat[3]))
     print(sim.inspect(b.mat[4]), sim.inspect(b.mat[5]), sim.inspect(b.mat[6]), sim.inspect(b.mat[7]))
+    # with open('test.v', 'w') as test:
+    #     # with open("fomu.v", 'r') as harness:
+    #     #     test.write(harness.read())
+    #     pyrtl.importexport.output_to_verilog(dest_file=test, add_reset=False)
