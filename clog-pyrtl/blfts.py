@@ -14,17 +14,18 @@ class BLFT:
     mat: list[pyrtl.Register]
     singularity: pyrtl.Register
 
-    ctrl: pyrtl.Input
-    # in_inexact: pyrtl.Input
-    x: pyrtl.Input
-    y: pyrtl.Input
+    ctrl: pyrtl.Register
+    # in_inexact: pyrtl.Register
+    x: pyrtl.Register
+    y: pyrtl.Register
 
-    z: pyrtl.Output
-    # out_inexact: pyrtl.Output
+    z: pyrtl.Register
+    # out_inexact: pyrtl.Register
 
 # reset_mat_wires should be a list with 8 "things that can be wired into a register.next"
 # corresponding to each coefficient in the blft's mat
-def blft(name_prefix, reset_mat_wires) -> BLFT:
+# active_wire gates the blft updating its state in any way (useful to meter blft in/output)
+def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
     # i could have used an rf memblock with 8 read and write ports
     # but this is easier
     # too much swapping stuff around to deal with that
@@ -38,12 +39,12 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
     m7 = pyrtl.Register(bitwidth=COEF_WIDTH)
     singularity = pyrtl.Register(bitwidth=1)
 
-    ctrl = pyrtl.Input(bitwidth=CTRL_WIDTH, name=name_prefix+'ctrl')
-    #in_inexact = pyrtl.Input(bitwidth=1, name='in_inexact')
-    x = pyrtl.Input(bitwidth=TERM_WIDTH, name=name_prefix+'in_x')
-    y = pyrtl.Input(bitwidth=TERM_WIDTH, name=name_prefix+'in_y')
-    z = pyrtl.Output(bitwidth=TERM_WIDTH, name=name_prefix+'out_z')
-    #out_inexact = pyrtl.Output(bitwidth=1, name='out_inexact')
+    ctrl = pyrtl.Register(bitwidth=CTRL_WIDTH, name=name_prefix+'ctrl')
+    #in_inexact = pyrtl.Register(bitwidth=1, name='in_inexact')
+    x = pyrtl.Register(bitwidth=TERM_WIDTH, name=name_prefix+'in_x')
+    y = pyrtl.Register(bitwidth=TERM_WIDTH, name=name_prefix+'in_y')
+    z = pyrtl.Register(bitwidth=TERM_WIDTH, name=name_prefix+'out_z')
+    #out_inexact = pyrtl.Register(bitwidth=1, name='out_inexact')
 
     # (intermediate flags and wires defined for egestion)
     num_agreed   = pyrtl.WireVector(bitwidth=1)#, name=name_prefix+'e_num')
@@ -63,6 +64,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
 
     with pyrtl.conditional_assignment:
         # nothing happens :P
+        with ~active_wire: pass
         with ctrl == Control.NONE: pass
         # allow the user to reset the registers
         with ctrl == Control.RESET:
@@ -79,7 +81,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
         with ctrl == Control.X_IN:
             # (z and singularity are irrelevant; preserve singularity, emit nothing)
             # (singularity is amended on egest check)
-            z |= Term.NONE
+            z.next |= Term.NONE
             singularity.next |= singularity
             with x == Term.NONE:
                 pass
@@ -120,7 +122,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
         with ctrl == Control.Y_IN:
             # (z and singularity are irrelevant; preserve singularity, emit nothing)
             # (singularity is amended on egest check)
-            z |= Term.NONE
+            z.next |= Term.NONE
             singularity.next |= singularity
             with y == Term.NONE:
                 pass
@@ -180,7 +182,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
 
             # all zero denominator; we're infinite!
             with (m4 == 0) & (m5 == 0) & (m6 == 0) & (m7 == 0):
-                z |= Term.INF
+                z.next |= Term.INF
                 singularity.next |= 0
             # we're well defined, it's time to egest :D (probably)
             with well_defined:
@@ -191,7 +193,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                 # first, the nonspeculative terms
                 # neg
                 with signed_lt(m0, 0) != signed_lt(m4, 0):
-                    z |= Term.NEG # (no need to use the i variants for negative)
+                    z.next |= Term.NEG # (no need to use the i variants for negative)
                     singularity.next |= 0
                     m0.next |= s_neg(m0)
                     m1.next |= s_neg(m1)
@@ -202,7 +204,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                     signed_ge(shift_right_arithmetic(i1, 1), i5) &\
                     signed_ge(shift_right_arithmetic(i2, 1), i6) &\
                     signed_ge(shift_right_arithmetic(i3, 1), i7):
-                    z |= Term.ORD
+                    z.next |= Term.ORD
                     singularity.next |= 0
                     with all_neven:
                         m0.next |= shift_right_arithmetic(i0, 1)
@@ -223,7 +225,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                     signed_lt(shift_right_arithmetic(i1, 1), i5) &\
                     signed_lt(shift_right_arithmetic(i2, 1), i6) &\
                     signed_lt(shift_right_arithmetic(i3, 1), i7):
-                    z |= Term.DREC
+                    z.next |= Term.DREC
                     singularity.next |= 0
                     m0.next |= i4
                     m4.next |= s_add(i0, s_neg(i4))
@@ -235,7 +237,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                     m7.next |= s_add(i3, s_neg(i7))
                 # rec
                 with signed_lt(i0, i4) & signed_lt(i1, i5) & signed_lt(i2, i6) & signed_lt(i3, i7):
-                    z |= Term.REC
+                    z.next |= Term.REC
                     singularity.next |= 0
                     m0.next |= i4
                     m4.next |= i0
@@ -252,7 +254,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                         signed_lt(i5, i1) & signed_lt(i1, s_shift_left(i5, 2)) &\
                         signed_lt(i6, i2) & signed_lt(i2, s_shift_left(i6, 2)) &\
                         signed_lt(i7, i3) & signed_lt(i3, s_shift_left(i7, 2)):
-                        z |= Term.ORD_SPEC
+                        z.next |= Term.ORD_SPEC
                         singularity.next |= 0
                         with all_neven:
                             m0.next |= shift_right_arithmetic(i0, 1)
@@ -275,7 +277,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                         signed_lt(i2, s_shift_left(i6, 1)) &\
                         signed_lt(i7, s_shift_left(i3, 1)) &\
                         signed_lt(i3, s_shift_left(i7, 1)):
-                        z |= Term.DREC_SPEC
+                        z.next |= Term.DREC_SPEC
                         singularity.next |= 1
                         m0.next |= i4
                         m4.next |= s_add(i0, s_neg(i4))
@@ -287,11 +289,11 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                         m7.next |= s_add(i3, s_neg(i7))
                     # nothing yet to egest; we need to take more terms!
                     with pyrtl.otherwise:
-                        z |= Term.NONE
+                        z.next |= Term.NONE
                         singularity.next |= 0
                 # nothing yet to egest; we need to take more terms!
                 with pyrtl.otherwise:
-                    z |= Term.NONE
+                    z.next |= Term.NONE
                     singularity.next |= 0
             # we're not well defined!!
             # note that we don't use the intermediate variants
@@ -302,7 +304,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                     signed_lt(abs_val(m1), abs_val(m5)) &\
                     signed_lt(abs_val(m2), abs_val(m6)) &\
                     signed_lt(abs_val(m3), abs_val(m7)):
-                    z |= Term.REC
+                    z.next |= Term.REC
                     singularity.next |= 1
                     m0.next |= m4
                     m4.next |= m0
@@ -319,7 +321,7 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                     signed_ge(shift_right_arithmetic(abs_val(m1), 1), abs_val(m5)) &\
                     signed_ge(shift_right_arithmetic(abs_val(m2), 1), abs_val(m6)) &\
                     signed_ge(shift_right_arithmetic(abs_val(m3), 1), abs_val(m7)):
-                    z |= Term.ORD_SING
+                    z.next |= Term.ORD_SING
                     singularity.next |= 1
                     with all_neven:
                         m0.next |= shift_right_arithmetic(m0, 1)
@@ -336,38 +338,56 @@ def blft(name_prefix, reset_mat_wires) -> BLFT:
                         m7.next |= s_shift_left(m7, 1)
                 # nothing yet to egest; we need to take more terms!
                 with pyrtl.otherwise:
-                    z |= Term.NONE
+                    z.next |= Term.NONE
                     singularity.next |= singularity
             # nothing yet to egest; we need to take more terms!
             with pyrtl.otherwise:
-                z |= Term.NONE
+                z.next |= Term.NONE
                 singularity.next |= singularity
     return BLFT([m0, m1, m2, m3, m4, m5, m6, m7], singularity, ctrl, x, y, z)
 
 # testing it :D
 if __name__ == "__main__":
-    b = blft("", [0, 2, 1, 0, 0, 0, 0, 1])
-    pyrtl.optimize()
-    print(len(pyrtl.working_block().logic_subset()))
-    # timing = pyrtl.TimingAnalysis()
-    # timing.print_max_length()
-    # critical_path_info = timing.critical_path()
-    # print(list(map(lambda l: len(l[1]), critical_path_info)))
-    logic_area, mem_area = pyrtl.area_estimation(tech_in_nm=65)
-    est_area = logic_area + mem_area # (mem_area is 0 since we only use registers)
-    print("Estimated logic area", est_area, "mm^2")
-    
-    ctrls = [Control.RESET, Control.X_IN, Control.Y_IN, Control.X_IN, Control.Y_IN, Control.Y_IN, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.NONE]
-    xs    = [Term.NONE, Term.DREC, Term.NONE, Term.INF,  Term.NONE, Term.NONE, Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
-    ys    = [Term.NONE, Term.NONE, Term.ORD,  Term.NONE, Term.DREC, Term.INF,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
-    tmat = {}
+    b = blft("", [0, 2, 1, 0, 0, 0, 0, 1], pyrtl.Const(1))
+
+    index = pyrtl.Register(bitwidth=16)
+    ctrls, xs, ys = three_cycle_clogs("0", "10", 32)
+    # ctrls = pyrtl.MemBlock(bitwidth=4, addrwidth=6)
+    # xs = pyrtl.MemBlock(bitwidth=4, addrwidth=6)
+    # ys = pyrtl.MemBlock(bitwidth=4, addrwidth=6)
+
+    b.ctrl.next <<= ctrls[index]
+    b.x.next <<= xs[index]
+    b.y.next <<= ys[index]
+    index.next <<= index + 1
+
     sim_trace = pyrtl.SimulationTrace()
-    sim = pyrtl.Simulation(tracer=sim_trace, register_value_map=tmat)
-    sim.step_multiple({'ctrl': ctrls, 'in_x': xs, 'in_y': ys})
+    sim = pyrtl.Simulation(tracer=sim_trace, register_value_map={}, memory_value_map={})
+    sim.step_multiple(nsteps=32)
     sim_trace.render_trace(repr_per_name={'ctrl': pyrtl.enum_name(Control), 'in_x': pyrtl.enum_name(Term), 'in_y': pyrtl.enum_name(Term), 'out_z': pyrtl.enum_name(Term)})
     print(sim.inspect(b.mat[0]), sim.inspect(b.mat[1]), sim.inspect(b.mat[2]), sim.inspect(b.mat[3]))
     print(sim.inspect(b.mat[4]), sim.inspect(b.mat[5]), sim.inspect(b.mat[6]), sim.inspect(b.mat[7]))
-    # with open('test.v', 'w') as test:
-    #     # with open("fomu.v", 'r') as harness:
-    #     #     test.write(harness.read())
-    #     pyrtl.importexport.output_to_verilog(dest_file=test, add_reset=False)
+
+    # print(len(pyrtl.working_block().logic_subset()))
+    # # timing = pyrtl.TimingAnalysis()
+    # # timing.print_max_length()
+    # # critical_path_info = timing.critical_path()
+    # # print(list(map(lambda l: len(l[1]), critical_path_info)))
+    # logic_area, mem_area = pyrtl.area_estimation(tech_in_nm=65)
+    # est_area = logic_area + mem_area # (mem_area is 0 since we only use registers)
+    # print("Estimated logic area", est_area, "mm^2")
+    
+    # ctrls = [Control.RESET, Control.X_IN, Control.Y_IN, Control.X_IN, Control.Y_IN, Control.Y_IN, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.Z_OUT, Control.NONE]
+    # xs    = [Term.NONE, Term.DREC, Term.NONE, Term.INF,  Term.NONE, Term.NONE, Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
+    # ys    = [Term.NONE, Term.NONE, Term.ORD,  Term.NONE, Term.DREC, Term.INF,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE,  Term.NONE, Term.NONE]
+    # tmat = {}
+    # sim_trace = pyrtl.SimulationTrace()
+    # sim = pyrtl.Simulation(tracer=sim_trace, register_value_map=tmat)
+    # sim.step_multiple({'ctrl': ctrls, 'in_x': xs, 'in_y': ys})
+    # sim_trace.render_trace(repr_per_name={'ctrl': pyrtl.enum_name(Control), 'in_x': pyrtl.enum_name(Term), 'in_y': pyrtl.enum_name(Term), 'out_z': pyrtl.enum_name(Term)})
+    # print(sim.inspect(b.mat[0]), sim.inspect(b.mat[1]), sim.inspect(b.mat[2]), sim.inspect(b.mat[3]))
+    # print(sim.inspect(b.mat[4]), sim.inspect(b.mat[5]), sim.inspect(b.mat[6]), sim.inspect(b.mat[7]))
+    # # with open('test.v', 'w') as test:
+    # #     # with open("fomu.v", 'r') as harness:
+    # #     #     test.write(harness.read())
+    # #     pyrtl.importexport.output_to_verilog(dest_file=test, add_reset=False)

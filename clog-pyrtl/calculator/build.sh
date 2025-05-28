@@ -7,7 +7,10 @@
 NAME=calculator
 set -e
 ../my-venv/bin/python3 $NAME.py
-../my-venv/bin/yowasp-yosys -DPVT $NAME.v -p synth_ice40 -o $NAME.json
+# https://yosyshq.readthedocs.io/projects/yosys/en/latest/cmd/synth_ice40.html
+yosys -DPVT $NAME.v -p synth_ice40 -o $NAME.json
+# ../my-venv/bin/yowasp-yosys -DPVT $NAME.v -s test_command -o $NAME.json
+# ../my-venv/bin/yowasp-yosys -DPVT $NAME.v -p synth_ice40 -o $NAME.json
 ../my-venv/bin/yowasp-nextpnr-ice40 --up5k --package uwg30 --pcf fomu-pvt.pcf --json $NAME.json --asc $NAME.asc
 ../my-venv/bin/yowasp-icepack $NAME.asc $NAME.bit
 openFPGALoader --Version || \

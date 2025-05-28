@@ -5,15 +5,19 @@ sys.path.append('..')
 import blfts
 from prelude import *
 
+# NOTE: THIS ONLY FITS ON THE FOMU
+# IF COEF_WIDTH IS SET TO LIKE 16
+
 # use counter logic to divide system clock
 # the clock is 48 MHz
-counter = pyrtl.Register(bitwidth=26)
+# (somewhat slower w/blft i think)
+FREQ = 25
+counter = pyrtl.Register(bitwidth=27)
 counter.next <<= counter + 1
-
 high_bit = pyrtl.Register(bitwidth=1)
-high_bit.next <<= counter[24]
+high_bit.next <<= counter[FREQ]
 was_toggled = pyrtl.Register(bitwidth=1)
-was_toggled.next <<= high_bit != counter[24]
+was_toggled.next <<= (high_bit != counter[FREQ])
 
 in_1 = pyrtl.Input(bitwidth=1, name='in_1') # left
 in_2 = pyrtl.Input(bitwidth=1, name='in_2') # right
@@ -22,26 +26,40 @@ red_o = pyrtl.Output(bitwidth=1, name='red_o')
 green_o = pyrtl.Output(bitwidth=1, name='green_o')
 blue_o = pyrtl.Output(bitwidth=1, name='blue_o')
 
-blft = blfts.blft("my_calculator_", [0, 2, 1, 0, 0, 0, 0, 1])
+blft = blfts.blft("my_calculator_", [0, 2, 1, 0, 0, 0, 0, 1], was_toggled)
 
-current_out = pyrtl.Register(bitwidth=3)
+current_out = pyrtl.Register(bitwidth=TERM_WIDTH)
+red_o   <<= (current_out == Term.ORD) | (current_out == Term.ORD_SPEC) | (current_out == Term.ORD_SING) | (current_out == Term.INF)
+green_o <<= (current_out == Term.DREC) | (current_out == Term.DREC_SPEC) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
+blue_o  <<= (current_out == Term.NEG) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
+with pyrtl.conditional_assignment:
+    with (high_bit != counter[FREQ]): # (happens one cycle before was_toggled)
+        with blft.ctrl == Control.X_IN:
+            blft.ctrl.next |= Control.Y_IN
+            blft.y.next |= Term.INF
+            # current_out.next |= Term.ORD # TODO TEMPORARY PLACEHOLDER
+        with blft.ctrl == Control.Y_IN:
+            blft.ctrl.next |= Control.Z_OUT
+            # current_out.next |= Term.DREC # TODO TEMPORARY PLACEHOLDER
+        with blft.ctrl == Control.Z_OUT:
+            blft.ctrl.next |= Control.X_IN
+            blft.x.next |= Term.INF
+            current_out.next |= blft.z
+        with pyrtl.otherwise:
+            blft.ctrl.next |= Control.X_IN
+            blft.x.next |= Term.INF
+            # current_out.next |= Term.REC # TODO TEMPORARY PLACEHOLDER
 
-red_o   |= (current_out == Term.ORD) | (current_out == Term.ORD_SPEC) | (current_out == Term.ORD_SING) | (current_out == Term.INF)
-green_o |= (current_out == Term.DREC) | (current_out == Term.DREC_SPEC) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
-blue_o  |= (current_out == Term.NEG) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
-# TODO convert blft to registers (or figure out how to embed a block in another block i guess)
-# with pyrtl.conditional_assignment:
-#     with was_toggled:
-#         with blft.ctrl == Control.NONE: blft.ctrl |= Control.X_IN
-#         with blft.ctrl == Control.X_IN:
-#             blft.x |= Term.ORD
-#             blft.ctrl |= Control.Y_IN
-#         with blft.ctrl == Control.Y_IN:
-#             blft.y |= Term.ORD
-#             blft.ctrl |= Control.Z_OUT
-#         with blft.ctrl == Control.Z_OUT:
-#             current_out.next |= blft.z
-#             blft.ctrl |= Control.X_IN
+pyrtl.optimize()
+# https://mdko.github.io/2021/05/15/pyrtl-matmul.html
+# (where i got this timing code from; thanks zach's friend)
+# (and it seems to vaguely be corroborated by the fpga's performance/numbers)
+# ta = pyrtl.TimingAnalysis()
+# print(f"Max frequency: {ta.max_freq()} MhZ")
+# print(f"Max timing delay: {ta.max_length()} ps")
+# print(f"Logic count: {len({l for l in pyrtl.working_block().logic if l.op not in 'wcs'})}")
+# logic, _ = pyrtl.area_estimation()
+# print(f"Logic area est: {logic}mm^2")
 
 # TODO: THE PLAN
 # user provides little endian bitstrings specifying two rationals and an operation
