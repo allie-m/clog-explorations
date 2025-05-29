@@ -28,27 +28,41 @@ blue_o = pyrtl.Output(bitwidth=1, name='blue_o')
 
 blft = blfts.blft("my_calculator_", [0, 2, 1, 0, 0, 0, 0, 1], was_toggled)
 
+index = pyrtl.Register(bitwidth=5)
+ctrls, xs, ys = three_cycle_clogs("0", "10", 32, 5)
+
 current_out = pyrtl.Register(bitwidth=TERM_WIDTH)
 red_o   <<= (current_out == Term.ORD) | (current_out == Term.ORD_SPEC) | (current_out == Term.ORD_SING) | (current_out == Term.INF)
 green_o <<= (current_out == Term.DREC) | (current_out == Term.DREC_SPEC) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
 blue_o  <<= (current_out == Term.NEG) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
+
+blft.ctrl.next <<= ctrls[index]
+blft.x.next <<= xs[index]
+blft.y.next <<= ys[index]
+current_out.next <<= blft.z
 with pyrtl.conditional_assignment:
-    with (high_bit != counter[FREQ]): # (happens one cycle before was_toggled)
-        with blft.ctrl == Control.X_IN:
-            blft.ctrl.next |= Control.Y_IN
-            blft.y.next |= Term.INF
-            # current_out.next |= Term.ORD # TODO TEMPORARY PLACEHOLDER
-        with blft.ctrl == Control.Y_IN:
-            blft.ctrl.next |= Control.Z_OUT
-            # current_out.next |= Term.DREC # TODO TEMPORARY PLACEHOLDER
-        with blft.ctrl == Control.Z_OUT:
-            blft.ctrl.next |= Control.X_IN
-            blft.x.next |= Term.INF
-            current_out.next |= blft.z
-        with pyrtl.otherwise:
-            blft.ctrl.next |= Control.X_IN
-            blft.x.next |= Term.INF
-            # current_out.next |= Term.REC # TODO TEMPORARY PLACEHOLDER
+    with was_toggled: # doing blft computation on this cycle (results will be visible next cycle)
+        index.next |= index + 1
+        # nc = ctrls[index] # TEMPORARY
+        # with nc == Control.RESET: current_out.next |= Term.NEG
+        # with nc == Control.X_IN: current_out.next |= Term.REC
+        # with nc == Control.Y_IN: current_out.next |= Term.REC
+        # with nc == Control.Z_OUT: current_out.next |= Term.REC
+    #     with blft.ctrl == Control.X_IN:
+    #         blft.ctrl.next |= Control.Y_IN
+    #         blft.y.next |= Term.INF
+    #         # current_out.next |= Term.ORD # TODO TEMPORARY PLACEHOLDER
+    #     with blft.ctrl == Control.Y_IN:
+    #         blft.ctrl.next |= Control.Z_OUT
+    #         # current_out.next |= Term.DREC # TODO TEMPORARY PLACEHOLDER
+    #     with blft.ctrl == Control.Z_OUT:
+    #         blft.ctrl.next |= Control.X_IN
+    #         blft.x.next |= Term.INF
+    #         current_out.next |= blft.z
+    #     with pyrtl.otherwise:
+    #         blft.ctrl.next |= Control.X_IN
+    #         blft.x.next |= Term.INF
+    #         # current_out.next |= Term.REC # TODO TEMPORARY PLACEHOLDER
 
 pyrtl.optimize()
 # https://mdko.github.io/2021/05/15/pyrtl-matmul.html

@@ -79,9 +79,8 @@ def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
             singularity.next |= 0
         # ingest x
         with ctrl == Control.X_IN:
-            # (z and singularity are irrelevant; preserve singularity, emit nothing)
+            # (z and singularity are irrelevant; preserve singularity and previous emission)
             # (singularity is amended on egest check)
-            z.next |= Term.NONE
             singularity.next |= singularity
             with x == Term.NONE:
                 pass
@@ -120,9 +119,8 @@ def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
                 m5.next |= s_neg(m5)
         # ingest y
         with ctrl == Control.Y_IN:
-            # (z and singularity are irrelevant; preserve singularity, emit nothing)
+            # (z and singularity are irrelevant; preserve singularity and previous emission)
             # (singularity is amended on egest check)
-            z.next |= Term.NONE
             singularity.next |= singularity
             with y == Term.NONE:
                 pass
@@ -304,7 +302,7 @@ def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
                     signed_lt(abs_val(m1), abs_val(m5)) &\
                     signed_lt(abs_val(m2), abs_val(m6)) &\
                     signed_lt(abs_val(m3), abs_val(m7)):
-                    z.next |= Term.REC
+                    z.next |= Term.REC_SPEC
                     singularity.next |= 1
                     m0.next |= m4
                     m4.next |= m0
@@ -350,11 +348,8 @@ def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
 if __name__ == "__main__":
     b = blft("", [0, 2, 1, 0, 0, 0, 0, 1], pyrtl.Const(1))
 
-    index = pyrtl.Register(bitwidth=16)
-    ctrls, xs, ys = three_cycle_clogs("0", "10", 32)
-    # ctrls = pyrtl.MemBlock(bitwidth=4, addrwidth=6)
-    # xs = pyrtl.MemBlock(bitwidth=4, addrwidth=6)
-    # ys = pyrtl.MemBlock(bitwidth=4, addrwidth=6)
+    index = pyrtl.Register(bitwidth=5)
+    ctrls, xs, ys = three_cycle_clogs("0", "10", 32, 5)
 
     b.ctrl.next <<= ctrls[index]
     b.x.next <<= xs[index]

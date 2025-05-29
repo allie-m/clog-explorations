@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 
 # dials we can fiddle with
-COEF_WIDTH = 16
+COEF_WIDTH = 8
 MAX_VAL = 2**(COEF_WIDTH - 1) - 1
 MIN_VAL = -(2**(COEF_WIDTH - 1))
 ENABLE_SPECULATIVE_EGEST = pyrtl.WireVector(bitwidth=1, name='cfg_speculative_egest')
@@ -33,7 +33,7 @@ class Term(IntEnum):
 
 # creates a romblock fit for consumption by a 3-cycle blft/nlft/etc
 # given two input clogs specified as strings
-def three_cycle_clogs(cl1: str, cl2: str, cycles):
+def three_cycle_clogs(cl1: str, cl2: str, cycles, addrwidth):
     def c_to_term(c):
         if c == "0": return Term.DREC
         if c == "1": return Term.ORD
@@ -43,19 +43,17 @@ def three_cycle_clogs(cl1: str, cl2: str, cycles):
         raise Exception("ahhhhhhhhh invalid clog char")
     cl1 = list(map(c_to_term, cl1)) + [Term.INF]
     cl2 = list(map(c_to_term, cl2)) + [Term.INF]
-    ctrl = [Control.RESET] + ([Control.X_IN, Control.Y_IN, Control.Z_OUT] * cycles) + [Control.NONE]
+    ctrl = [Control.RESET] + ([Control.X_IN, Control.Y_IN, Control.Z_OUT] * (cycles-2)) + [Control.NONE]
     ncl1 = [Term.NONE]
     ncl2 = [Term.NONE]
-    for i in range(cycles):
+    for i in range(cycles-1):
         if i//3 < len(cl1): ncl1.append(cl1[i//3])
         else: ncl1.append(Term.NONE)
         if i//3 < len(cl2): ncl2.append(cl2[i//3])
         else: ncl2.append(Term.NONE)
-    print(ctrl, ncl1, ncl2)
-    # ADDRWIDTH IS FIXED TO 16 BITS BECAUSE I DON'T WANNA DEAL WITH THAT
-    ctrl = pyrtl.RomBlock(bitwidth=CTRL_WIDTH, addrwidth=16, romdata=ctrl, pad_with_zeros=True)
-    x = pyrtl.RomBlock(bitwidth=TERM_WIDTH, addrwidth=16, romdata=ncl1, pad_with_zeros=True)
-    y = pyrtl.RomBlock(bitwidth=TERM_WIDTH, addrwidth=16, romdata=ncl2, pad_with_zeros=True)
+    ctrl = pyrtl.RomBlock(bitwidth=CTRL_WIDTH, addrwidth=addrwidth, romdata=ctrl, pad_with_zeros=True)
+    x = pyrtl.RomBlock(bitwidth=TERM_WIDTH, addrwidth=addrwidth, romdata=ncl1, pad_with_zeros=True)
+    y = pyrtl.RomBlock(bitwidth=TERM_WIDTH, addrwidth=addrwidth, romdata=ncl2, pad_with_zeros=True)
     return (ctrl, x, y)
 
 # helper circuits
@@ -68,7 +66,7 @@ def three_cycle_clogs(cl1: str, cl2: str, cycles):
 # def s_shift_left(val, shamt): return shift_left_arithmetic(val, shamt)
 
 def abs_val(val):
-    return mux(signed_lt(val, 0), s_neg(val), val)
+    return mux(val[COEF_WIDTH-1] == 1, val, s_neg(val))
 
 def s_neg(val):
     is_min = val == pyrtl.Const(MIN_VAL, bitwidth=COEF_WIDTH)
