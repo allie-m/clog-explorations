@@ -67,6 +67,7 @@ def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
         with ~active_wire: pass
         with ctrl == Control.NONE: pass
         # allow the user to reset the registers
+        # also removes previously set z output
         with ctrl == Control.RESET:
             m0.next |= reset_mat_wires[0]
             m1.next |= reset_mat_wires[1]
@@ -77,6 +78,7 @@ def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
             m6.next |= reset_mat_wires[6]
             m7.next |= reset_mat_wires[7]
             singularity.next |= 0
+            z.next |= Term.NONE
         # ingest x
         with ctrl == Control.X_IN:
             # (z and singularity are irrelevant; preserve singularity and previous emission)

@@ -16,7 +16,7 @@ counter = pyrtl.Register(bitwidth=27)
 counter.next <<= counter + 1
 high_bit = pyrtl.Register(bitwidth=1)
 high_bit.next <<= counter[FREQ]
-was_toggled = pyrtl.Register(bitwidth=1)
+was_toggled = pyrtl.Register(bitwidth=1, name='was_toggled')
 was_toggled.next <<= (high_bit != counter[FREQ])
 
 in_1 = pyrtl.Input(bitwidth=1, name='in_1') # left
@@ -31,17 +31,25 @@ blft = blfts.blft("my_calculator_", [0, 2, 1, 0, 0, 0, 0, 1], was_toggled)
 index = pyrtl.Register(bitwidth=5)
 ctrls, xs, ys = three_cycle_clogs("0", "10", 32, 5)
 
-current_out = pyrtl.Register(bitwidth=TERM_WIDTH)
-red_o   <<= (current_out == Term.ORD) | (current_out == Term.ORD_SPEC) | (current_out == Term.ORD_SING) | (current_out == Term.INF)
-green_o <<= (current_out == Term.DREC) | (current_out == Term.DREC_SPEC) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
-blue_o  <<= (current_out == Term.NEG) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
+# current_out = pyrtl.WireVector(bitwidth=TERM_WIDTH)
+# red_o   <<= blft.z == Term.NONE#(current_out == Term.ORD) | (current_out == Term.ORD_SPEC) | (current_out == Term.ORD_SING) | (current_out == Term.INF)
+# green_o <<= (blft.z == Term.ORD) | (blft.z == Term.INF)#(current_out == Term.DREC) | (current_out == Term.DREC_SPEC) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
+# blue_o  <<= (blft.z == Term.DREC) | (blft.z == Term.INF)#(current_out == Term.NEG) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
 
 blft.ctrl.next <<= ctrls[index]
 blft.x.next <<= xs[index]
 blft.y.next <<= ys[index]
-current_out.next <<= blft.z
+# current_out <<= blft.z
+# red_o <<= blft.z == Term.NONE
+# green_o <<= (blft.x | blft.y) != 0#(blft.z == Term.DREC) | (blft.z == Term.INF)
+# blue_o <<= (blft.z == Term.ORD) | (blft.z == Term.DREC) | (blft.z == Term.INF)
+red_o <<= blft.z == Term.NONE
+green_o <<= 0#blft.z == Term.ORD
+blue_o <<= (blft.z == Term.ORD) | (blft.z == Term.DREC) | (blft.z == Term.INF)
+# blue_o <<= (blft.z == Term.DREC) | (blft.z == Term.INF)
+
 with pyrtl.conditional_assignment:
-    with was_toggled: # doing blft computation on this cycle (results will be visible next cycle)
+    with (high_bit != counter[FREQ]): # doing blft computation NEXT cycle
         index.next |= index + 1
         # nc = ctrls[index] # TEMPORARY
         # with nc == Control.RESET: current_out.next |= Term.NEG
@@ -64,7 +72,15 @@ with pyrtl.conditional_assignment:
     #         blft.x.next |= Term.INF
     #         # current_out.next |= Term.REC # TODO TEMPORARY PLACEHOLDER
 
+# TEMPORARY SIM
+sim_trace = pyrtl.SimulationTrace()
+sim = pyrtl.Simulation(tracer=sim_trace, register_value_map={}, memory_value_map={})
+sim.step_multiple({in_1: [0]*64, in_2: [0]*64})
+sim_trace.render_trace(repr_per_name={'ctrl': pyrtl.enum_name(Control), 'in_x': pyrtl.enum_name(Term), 'in_y': pyrtl.enum_name(Term), 'out_z': pyrtl.enum_name(Term)})
+print(sim.inspect(blft.mat[0]), sim.inspect(blft.mat[1]), sim.inspect(blft.mat[2]), sim.inspect(blft.mat[3]))
+print(sim.inspect(blft.mat[4]), sim.inspect(blft.mat[5]), sim.inspect(blft.mat[6]), sim.inspect(blft.mat[7]))
 pyrtl.optimize()
+
 # https://mdko.github.io/2021/05/15/pyrtl-matmul.html
 # (where i got this timing code from; thanks zach's friend)
 # (and it seems to vaguely be corroborated by the fpga's performance/numbers)
@@ -75,14 +91,6 @@ pyrtl.optimize()
 # logic, _ = pyrtl.area_estimation()
 # print(f"Logic area est: {logic}mm^2")
 
-# TODO: THE PLAN
-# user provides little endian bitstrings specifying two rationals and an operation
-# which we pack into a blft's coefficient matrix
-# and then do the cyclic x/y/z; each output is a color (2^3=8 colors, 8 clog terms)
-# outputs are metered by the counter
-# (we can also mayyyybe use the counter to profile(ish) how long the blft took)
-# IDEA: start with a hardcoded blft matrix outputting, then let users configure
-
 ##=========================================================================##
 ## Do not change the code below this header!
 ## Export this PyRTL code to Verilog, then combine it with the Verilog
@@ -91,4 +99,4 @@ pyrtl.optimize()
 with open('calculator.v', 'w') as out:
     with open("fomu.v", 'r') as harness:
         out.write(harness.read())
-    pyrtl.importexport.output_to_verilog(dest_file=out, add_reset=False)
+    pyrtl.importexport.output_to_verilog(dest_file=out, add_reset=False, initialize_registers=True)
