@@ -14,13 +14,15 @@ class BLFT:
     mat: list[pyrtl.Register]
     singularity: pyrtl.Register
 
-    ctrl: pyrtl.Register
-    # in_inexact: pyrtl.Register
-    x: pyrtl.Register
-    y: pyrtl.Register
+    ctrl: pyrtl.WireVector
+    # in_inexact: pyrtl.WireVector
+    x: pyrtl.WireVector
+    y: pyrtl.WireVector
 
+    # z is a register because we want its value to persist until re-overwritten
+    # and so that it takes a full cycle to do a blft egest
     z: pyrtl.Register
-    # out_inexact: pyrtl.Register
+    # out_inexact: pyrtl.WireVector
 
 # reset_mat_wires should be a list with 8 "things that can be wired into a register.next"
 # corresponding to each coefficient in the blft's mat
@@ -39,12 +41,12 @@ def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
     m7 = pyrtl.Register(bitwidth=COEF_WIDTH)
     singularity = pyrtl.Register(bitwidth=1)
 
-    ctrl = pyrtl.Register(bitwidth=CTRL_WIDTH, name=name_prefix+'ctrl')
-    #in_inexact = pyrtl.Register(bitwidth=1, name='in_inexact')
-    x = pyrtl.Register(bitwidth=TERM_WIDTH, name=name_prefix+'in_x')
-    y = pyrtl.Register(bitwidth=TERM_WIDTH, name=name_prefix+'in_y')
+    ctrl = pyrtl.WireVector(bitwidth=CTRL_WIDTH, name=name_prefix+'ctrl')
+    #in_inexact = pyrtl.WireVector(bitwidth=1, name='in_inexact')
+    x = pyrtl.WireVector(bitwidth=TERM_WIDTH, name=name_prefix+'in_x')
+    y = pyrtl.WireVector(bitwidth=TERM_WIDTH, name=name_prefix+'in_y')
     z = pyrtl.Register(bitwidth=TERM_WIDTH, name=name_prefix+'out_z')
-    #out_inexact = pyrtl.Register(bitwidth=1, name='out_inexact')
+    #out_inexact = pyrtl.WireVector(bitwidth=1, name='out_inexact')
 
     # (intermediate flags and wires defined for egestion)
     num_agreed   = pyrtl.WireVector(bitwidth=1)#, name=name_prefix+'e_num')
@@ -64,6 +66,7 @@ def blft(name_prefix, reset_mat_wires, active_wire) -> BLFT:
 
     with pyrtl.conditional_assignment:
         # nothing happens :P
+        # (all registers persist)
         with ~active_wire: pass
         with ctrl == Control.NONE: pass
         # allow the user to reset the registers
@@ -353,9 +356,9 @@ if __name__ == "__main__":
     index = pyrtl.Register(bitwidth=5)
     ctrls, xs, ys = three_cycle_clogs("0", "10", 32, 5)
 
-    b.ctrl.next <<= ctrls[index]
-    b.x.next <<= xs[index]
-    b.y.next <<= ys[index]
+    b.ctrl <<= ctrls[index]
+    b.x <<= xs[index]
+    b.y <<= ys[index]
     index.next <<= index + 1
 
     sim_trace = pyrtl.SimulationTrace()

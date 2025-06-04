@@ -4,6 +4,8 @@
 #   https://github.com/SymbiFlow/ibex-yosys-build
 # alternatively for transpilation (USE THIS!!!!)
 #   https://f4pga-examples.readthedocs.io/en/latest/getting.html
+#       https://f4pga-examples.readthedocs.io/en/latest/running-examples.html
+#       https://f4pga-examples.readthedocs.io/en/latest/xc7/pulse_width_led.html
 #   https://github.com/chipsalliance/f4pga-examples/tree/main/xc7/counter_test
 # docs
 #   https://docs.zephyrproject.org/latest/boards/digilent/arty_a7/doc/index.html

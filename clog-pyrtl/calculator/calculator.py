@@ -11,7 +11,7 @@ from prelude import *
 # use counter logic to divide system clock
 # the clock is 48 MHz
 # (somewhat slower w/blft i think)
-FREQ = 25
+FREQ = 1#25
 counter = pyrtl.Register(bitwidth=27)
 counter.next <<= counter + 1
 high_bit = pyrtl.Register(bitwidth=1)
@@ -36,20 +36,19 @@ ctrls, xs, ys = three_cycle_clogs("0", "10", 32, 5)
 # green_o <<= (blft.z == Term.ORD) | (blft.z == Term.INF)#(current_out == Term.DREC) | (current_out == Term.DREC_SPEC) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
 # blue_o  <<= (blft.z == Term.DREC) | (blft.z == Term.INF)#(current_out == Term.NEG) | (current_out == Term.REC) | (current_out == Term.REC_SPEC) | (current_out == Term.INF)
 
-blft.ctrl.next <<= ctrls[index]
-blft.x.next <<= xs[index]
-blft.y.next <<= ys[index]
-# current_out <<= blft.z
+blft.ctrl <<= ctrls[index]
+blft.x <<= xs[index]
+blft.y <<= ys[index]
+
 # red_o <<= blft.z == Term.NONE
-# green_o <<= (blft.x | blft.y) != 0#(blft.z == Term.DREC) | (blft.z == Term.INF)
+# green_o <<= (blft.x | blft.y) != 0
 # blue_o <<= (blft.z == Term.ORD) | (blft.z == Term.DREC) | (blft.z == Term.INF)
 red_o <<= blft.z == Term.NONE
-green_o <<= 0#blft.z == Term.ORD
-blue_o <<= (blft.z == Term.ORD) | (blft.z == Term.DREC) | (blft.z == Term.INF)
-# blue_o <<= (blft.z == Term.DREC) | (blft.z == Term.INF)
+green_o <<= (blft.z == Term.ORD) | (blft.z == Term.INF)
+blue_o <<= (blft.z == Term.DREC) | (blft.z == Term.INF)
 
 with pyrtl.conditional_assignment:
-    with (high_bit != counter[FREQ]): # doing blft computation NEXT cycle
+    with was_toggled: # doing blft computation this cycle
         index.next |= index + 1
         # nc = ctrls[index] # TEMPORARY
         # with nc == Control.RESET: current_out.next |= Term.NEG
