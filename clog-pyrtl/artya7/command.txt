@@ -7,3 +7,5 @@ openFPGAloader -b arty program.bit --verify
 # cause installing usb drivers seems to require
 # installing most of vivado
 # and i cannot be bothered
+
+# TODO https://aur.archlinux.org/packages/xilinx-usb-drivers
