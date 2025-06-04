@@ -2,3 +2,8 @@
 openFPGALoader --Version
 openFPGAloader -b arty program.bit --verify
 # (TODO)
+
+# hahahaha not happening
+# cause installing usb drivers seems to require
+# installing most of vivado
+# and i cannot be bothered
