@@ -89,30 +89,34 @@ pub fn node_to_clog_stream(
         Node::Decimal { word, pow } => {
             Box::new(rational(word, BigUint::from(10u32).pow(pow as u32), 1))
         }
-        Node::OneChild(_kind, _child) => Err(())?,
+        Node::OneChild(kind, child) => Box::new(match kind {
+            // TODO TEMPORARY
+            OneChild::Sqrt => sqrt(node_to_clog_stream(child, speculative)?, speculative),
+            _ => Err(())?,
+        }),
         Node::TwoChildren(kind, c1, c2) => {
             let c1 = node_to_clog_stream(c1, speculative)?;
             let c2 = node_to_clog_stream(c2, speculative)?;
             Box::new(match kind {
-                TwoChildren::Add => blft(
+                TwoChildren::Add => blfts(
                     c1,
                     c2,
                     [0, 1, 1, 0, 0, 0, 0, 1].map(|i| i.into()),
                     speculative,
                 ),
-                TwoChildren::Sub => blft(
+                TwoChildren::Sub => blfts(
                     c1,
                     c2,
                     [0, 1, -1, 0, 0, 0, 0, 1].map(|i| i.into()),
                     speculative,
                 ),
-                TwoChildren::Mul => blft(
+                TwoChildren::Mul => blfts(
                     c1,
                     c2,
                     [1, 0, 0, 0, 0, 0, 0, 1].map(|i| i.into()),
                     speculative,
                 ),
-                TwoChildren::Div => blft(
+                TwoChildren::Div => blfts(
                     c1,
                     c2,
                     [0, 1, 0, 0, 0, 0, 1, 0].map(|i| i.into()),
