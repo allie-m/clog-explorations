@@ -166,8 +166,6 @@ where
                             self.mat[7] <<= 1;
                         }
                         return Some(Term::OrdSingularity);
-                    } else {
-                        continue;
                     }
                 } else {
                     self.singularity = false;

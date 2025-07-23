@@ -12,11 +12,16 @@ where
     impl<X: Stream> Iterator for Sqrt<X> {
         type Item = Term;
         fn next(&mut self) -> Option<Term> {
+            let mut i = 0;
             loop {
+                i += 1;
+                if i > 100 {
+                    panic!()
+                }
                 // ingest from x
-                // same exact logic as in 
+                // same exact logic as in
                 let term = self.x.next();
-                println!("{:?}", term);
+                // println!("{:?}", term);
                 match term {
                     Some(Term::Ord | Term::OrdSpec | Term::OrdSingularity) => {
                         self.mat[0] <<= 1;
@@ -54,11 +59,38 @@ where
                     }
                 }
 
+                // if there's no y in the denominator,
+                // then we've hit oo
                 if self.mat[4] == 0.into() && self.mat[6] == 0.into() {
                     return None;
                 }
 
                 // println!("{:?}", self.mat);
+
+                if self.mat.iter().all(|a| *a <= 0.into()) {
+                    self.mat[0] = -self.mat[0].clone();
+                    self.mat[1] = -self.mat[1].clone();
+                    self.mat[2] = -self.mat[2].clone();
+                    self.mat[3] = -self.mat[3].clone();
+                    self.mat[4] = -self.mat[4].clone();
+                    self.mat[5] = -self.mat[5].clone();
+                    self.mat[6] = -self.mat[6].clone();
+                    self.mat[7] = -self.mat[7].clone();
+                }
+
+                // TODO RAISE ERROR INSTEAD OF FLIPPING SIGN
+                if self.mat[..4].iter().all(|a| *a <= 0.into()) {
+                    self.mat[0] = -self.mat[0].clone();
+                    self.mat[1] = -self.mat[1].clone();
+                    self.mat[2] = -self.mat[2].clone();
+                    self.mat[3] = -self.mat[3].clone();
+                }
+                if self.mat[4..].iter().all(|a| *a <= 0.into()) {
+                    self.mat[4] = -self.mat[4].clone();
+                    self.mat[5] = -self.mat[5].clone();
+                    self.mat[6] = -self.mat[6].clone();
+                    self.mat[7] = -self.mat[7].clone();
+                }
 
                 // plug in y=2 for x=oo and x=0; if they agree
                 // egest and ingest that term from/into y
@@ -99,7 +131,7 @@ where
                         self.mat[6] <<= 1;
                         self.mat[7] <<= 1;
                     }
-                    println!("egest ord");
+                    // println!("egest ord");
                     return Some(Term::Ord);
                 } else if 2 * self.mat[0].clone() + self.mat[1].clone()
                     < 2 * (2 * self.mat[4].clone() + self.mat[5].clone())
@@ -129,7 +161,7 @@ where
                     self.mat[2] += self.mat[3].clone();
                     self.mat[4] += self.mat[5].clone();
                     self.mat[6] += self.mat[7].clone();
-                    println!("egest drec");
+                    // println!("egest drec");
                     return Some(Term::DRec);
                 } else if self.mat[0].clone() + self.mat[1].clone()
                     < self.mat[4].clone() + self.mat[5].clone()
@@ -146,6 +178,7 @@ where
                     self.mat.swap(2, 3);
                     self.mat.swap(4, 5);
                     self.mat.swap(6, 7);
+                    // println!("egest rec");
                     return Some(Term::Rec);
                 }
             }
