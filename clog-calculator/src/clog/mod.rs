@@ -1,6 +1,10 @@
 mod blfts;
+mod cmp;
+mod log;
 mod sqrt;
 pub use blfts::*;
+pub use cmp::*;
+pub use log::*;
 pub use sqrt::*;
 
 use num_bigint::{BigInt, BigUint};
@@ -18,14 +22,14 @@ pub enum Term {
     Neg,
 }
 
-impl Term {
-    pub fn is_speculative(&self) -> bool {
-        match self {
-            Term::OrdSpec | Term::OrdSingularity | Term::DRecSpec | Term::RecSpec => true,
-            _ => false,
-        }
-    }
-}
+// impl Term {
+//     pub fn is_speculative(&self) -> bool {
+//         match self {
+//             Term::OrdSpec | Term::OrdSingularity | Term::DRecSpec | Term::RecSpec => true,
+//             _ => false,
+//         }
+//     }
+// }
 
 pub trait Stream: Iterator<Item = Term> {}
 impl Stream for Box<dyn Stream> {}

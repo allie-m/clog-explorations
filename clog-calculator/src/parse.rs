@@ -52,12 +52,13 @@ pub enum TwoChildren {
     Sub,
     Mul,
     Div,
-    Pow,
     Floor,
     Ceil,
     Round,
     Mod,
-    Log, // (exp, base)
+    Pow, // (base, exp)
+    Log, // (base, exp)
+    Compare,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -89,11 +90,11 @@ pub fn node_to_clog_stream(
         Node::Decimal { word, pow } => {
             Box::new(rational(word, BigUint::from(10u32).pow(pow as u32), 1))
         }
-        Node::OneChild(kind, child) => Box::new(match kind {
-            // TODO TEMPORARY
-            OneChild::Sqrt => sqrt(node_to_clog_stream(child, speculative)?, speculative),
+        Node::OneChild(kind, child) => match kind {
+            // OneChild::Abs => Box::new(abs(node_to_clog_stream(child, speculative)?)),
+            OneChild::Sqrt => Box::new(sqrt(node_to_clog_stream(child, speculative)?, speculative)),
             _ => Err(())?,
-        }),
+        },
         Node::TwoChildren(kind, c1, c2) => {
             let c1 = node_to_clog_stream(c1, speculative)?;
             let c2 = node_to_clog_stream(c2, speculative)?;
@@ -140,7 +141,7 @@ pub fn roll_stack_expression(expr: &str) -> Result<Box<Node>, RollExprError> {
         }
         match token {
             // binary ops
-            "+" | "-" | "*" | "/" | "%" | "^" | "log" | "floor" | "ceil" | "round" => {
+            "+" | "-" | "*" | "/" | "%" | "^" | "log" | "floor" | "ceil" | "round" | "cmp" => {
                 let t1 = stack.pop().ok_or(RollExprError::EmptyStack)?;
                 let t2 = stack.pop().ok_or(RollExprError::EmptyStack)?;
                 stack.push(Box::new(Node::TwoChildren(
@@ -155,6 +156,7 @@ pub fn roll_stack_expression(expr: &str) -> Result<Box<Node>, RollExprError> {
                         "floor" => TwoChildren::Floor,
                         "ceil" => TwoChildren::Ceil,
                         "round" => TwoChildren::Round,
+                        "cmp" => TwoChildren::Compare,
                         _ => unreachable!(),
                     },
                     t1,
