@@ -56,6 +56,7 @@ where
     let mut mat: [BigInt; 4] = [1.into(), 0.into(), 0.into(), 1.into()];
     for _ in 0..count {
         let term = stream.next();
+        // println!("we got {:?}", term);
         match term {
             Some(Term::Ord | Term::OrdSpec | Term::OrdSingularity) => {
                 mat[0] <<= 1;

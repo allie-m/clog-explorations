@@ -21,7 +21,7 @@ where
                 // ingest from x
                 // same exact logic as in
                 let term = self.x.next();
-                // println!("{:?}", term);
+                // println!("{:?} | {:?}", term, self.mat);
                 match term {
                     Some(Term::Ord | Term::OrdSpec | Term::OrdSingularity) => {
                         self.mat[0] <<= 1;
@@ -92,12 +92,19 @@ where
                     self.mat[7] = -self.mat[7].clone();
                 }
 
-                // plug in y=2 for x=oo and x=0; if they agree
+                // plug in y=2 for x=oo and x=1; if they agree
                 // egest and ingest that term from/into y
+                // otherwise we try y=1 to discern between 0 and /
                 if 2 * self.mat[0].clone() + self.mat[1].clone()
                     >= 2 * (2 * self.mat[4].clone() + self.mat[5].clone())
-                    && 2 * self.mat[2].clone() + self.mat[3].clone()
-                        >= 2 * (2 * self.mat[6].clone() + self.mat[7].clone())
+                    && 2 * self.mat[0].clone()
+                        + self.mat[1].clone()
+                        + 2 * self.mat[2].clone()
+                        + self.mat[3].clone()
+                        >= 2 * (2 * self.mat[4].clone()
+                            + self.mat[5].clone()
+                            + 2 * self.mat[6].clone()
+                            + self.mat[7].clone())
                 {
                     // egest from y
                     if self.mat[1].clone() % 2 == 0.into()
@@ -135,12 +142,24 @@ where
                     return Some(Term::Ord);
                 } else if 2 * self.mat[0].clone() + self.mat[1].clone()
                     < 2 * (2 * self.mat[4].clone() + self.mat[5].clone())
-                    && 2 * self.mat[2].clone() + self.mat[3].clone()
-                        < 2 * (2 * self.mat[6].clone() + self.mat[7].clone())
+                    && 2 * self.mat[0].clone()
+                        + self.mat[1].clone()
+                        + 2 * self.mat[2].clone()
+                        + self.mat[3].clone()
+                        < 2 * (2 * self.mat[4].clone()
+                            + self.mat[5].clone()
+                            + 2 * self.mat[6].clone()
+                            + self.mat[7].clone())
                     && self.mat[0].clone() + self.mat[1].clone()
                         >= self.mat[4].clone() + self.mat[5].clone()
-                    && self.mat[2].clone() + self.mat[3].clone()
-                        >= self.mat[6].clone() + self.mat[7].clone()
+                    && self.mat[0].clone()
+                        + self.mat[1].clone()
+                        + self.mat[2].clone()
+                        + self.mat[3].clone()
+                        >= self.mat[4].clone()
+                            + self.mat[5].clone()
+                            + self.mat[6].clone()
+                            + self.mat[7].clone()
                 {
                     // otherwise, we egest and ingest 0 from/into y
                     // TODO WHAT HAPPENS WHEN THIS ISN'T THE MOVE
@@ -165,8 +184,14 @@ where
                     return Some(Term::DRec);
                 } else if self.mat[0].clone() + self.mat[1].clone()
                     < self.mat[4].clone() + self.mat[5].clone()
-                    && self.mat[2].clone() + self.mat[3].clone()
-                        < self.mat[6].clone() + self.mat[7].clone()
+                    && self.mat[0].clone()
+                        + self.mat[1].clone()
+                        + self.mat[2].clone()
+                        + self.mat[3].clone()
+                        < self.mat[4].clone()
+                            + self.mat[5].clone()
+                            + self.mat[6].clone()
+                            + self.mat[7].clone()
                 {
                     // egest
                     self.mat.swap(0, 4);
