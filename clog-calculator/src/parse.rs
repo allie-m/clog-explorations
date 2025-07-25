@@ -86,7 +86,26 @@ pub fn node_to_clog_stream(
 ) -> Result<Box<dyn crate::clog::Stream>, ()> {
     use crate::clog::*;
     Ok(match *node {
-        Node::Constant { kind: _ } => Err(())?,
+        Node::Constant { kind } => match kind {
+            Constant::Tau => todo!(),
+            Constant::E => Box::new(cfrac_to_clog(
+                {
+                    let mut i = -1;
+                    std::iter::from_fn(move || {
+                        i += 1;
+                        if i == 0 {
+                            Some(2)
+                        } else if i % 3 == 2 {
+                            Some(2 + 2 * (i / 3))
+                        } else {
+                            Some(1)
+                        }
+                    })
+                },
+                [1.into(), 0.into(), 0.into(), 1.into()],
+            )),
+            _ => Err(())?,
+        },
         Node::Decimal { word, pow } => {
             Box::new(rational(word, BigUint::from(10u32).pow(pow as u32), 1))
         }

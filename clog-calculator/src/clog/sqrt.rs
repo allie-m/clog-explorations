@@ -65,8 +65,6 @@ where
                     return None;
                 }
 
-                // println!("{:?}", self.mat);
-
                 if self.mat.iter().all(|a| *a <= 0.into()) {
                     self.mat[0] = -self.mat[0].clone();
                     self.mat[1] = -self.mat[1].clone();
@@ -91,6 +89,36 @@ where
                     self.mat[6] = -self.mat[6].clone();
                     self.mat[7] = -self.mat[7].clone();
                 }
+
+                println!("{:?}", self.mat);
+                println!(
+                    "at y=2 | x=oo {:?}/{:?}, x=0 {:?}/{:?}",
+                    2 * self.mat[0].clone() + self.mat[1].clone(),
+                    2 * self.mat[4].clone() + self.mat[5].clone(),
+                    2 * self.mat[0].clone()
+                        + self.mat[1].clone()
+                        + 2 * self.mat[2].clone()
+                        + self.mat[3].clone(),
+                    2 * self.mat[4].clone()
+                        + self.mat[5].clone()
+                        + 2 * self.mat[6].clone()
+                        + self.mat[7].clone()
+                );
+                println!(
+                    "at y=1 | x=oo {:?}/{:?}, x=0 {:?}/{:?}",
+                    self.mat[0].clone() + self.mat[1].clone(),
+                    self.mat[4].clone() + self.mat[5].clone(),
+                    self.mat[0].clone()
+                        + self.mat[1].clone()
+                        + self.mat[2].clone()
+                        + self.mat[3].clone(),
+                    self.mat[4].clone()
+                        + self.mat[5].clone()
+                        + self.mat[6].clone()
+                        + self.mat[7].clone()
+                );
+
+                // TODO IMPLEMENT SPECULATION FOR Y
 
                 // plug in y=2 for x=oo and x=1; if they agree
                 // egest and ingest that term from/into y

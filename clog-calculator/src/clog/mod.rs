@@ -1,8 +1,10 @@
 mod blfts;
+mod cfrac;
 mod cmp;
 mod log;
 mod sqrt;
 pub use blfts::*;
+pub use cfrac::*;
 pub use cmp::*;
 pub use log::*;
 pub use sqrt::*;
