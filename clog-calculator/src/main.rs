@@ -31,11 +31,18 @@ fn main() {
             let _ = iter.next().unwrap();
             match iter.next().map(|s| s.trim()) {
                 Some(item) => match item {
-                    "speculative" => cfg.speculative = true,
-                    "exact" => cfg.speculative = false,
+                    "speculative" => {
+                        cfg.speculative = true;
+                        println!("Speculation is turned on")
+                    }
+                    "unspeculative" => {
+                        cfg.speculative = false;
+                        println!("Speculation is turned off")
+                    }
                     "max_terms" => {
-                        if let Some(Ok(item)) = iter.next().map(|i| i.parse()) {
-                            cfg.max_terms = item
+                        if let Some(Ok(item)) = iter.next().map(|i| i.trim().parse()) {
+                            cfg.max_terms = item;
+                            println!("Max terms is now {}", cfg.max_terms);
                         }
                     }
                     // TODO more

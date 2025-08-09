@@ -1,6 +1,13 @@
 // use num_bigint::BigInt;
 
-// use crate::clog::Stream;
+use crate::clog::Stream;
+
+pub fn exp<X>(x: X)
+where
+    X: Stream,
+{
+    //
+}
 
 // pub fn log2<X>(x: X)
 // where
