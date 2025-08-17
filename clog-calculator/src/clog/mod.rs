@@ -84,7 +84,7 @@ where
             }
         }
         println!("we got {:?}", term);
-        // println!("{:?}", mat);
+        println!("ratmat {:?}", mat);
     }
     println!("look at our rational mat: {:?}", mat);
     let g = mat[0]

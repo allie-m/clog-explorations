@@ -22,7 +22,7 @@ fn main() {
     }
     let mut cfg = Cfg {
         speculative: true,
-        max_terms: 200,
+        max_terms: 50,
         out_format: OutFormat::Rational,
     };
     while stdin.read_line(&mut buf).unwrap() > 0 {

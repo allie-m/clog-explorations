@@ -16,12 +16,12 @@ where
     impl<X: Stream, Y: Stream> Iterator for Blfts<X, Y> {
         type Item = Term;
         fn next(&mut self) -> Option<Term> {
-            // let mut i = 0;
+            let mut i = 0;
             loop {
-                // i += 1;
-                // if i > 100 {
-                //     panic!()
-                // }
+                i += 1;
+                if i > 100 {
+                    panic!()
+                }
                 // println!("hii {:?}", self.mat);
                 // println!("{:?}", self.mat.iter().map(|i| i.bits()).max().unwrap());
                 if self.mat[4] == 0.into()
