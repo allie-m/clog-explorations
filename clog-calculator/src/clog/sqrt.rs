@@ -52,7 +52,7 @@ where
                         self.mat[5] = -self.mat[5].clone();
                     }
                     None => {
-                        // println!("continuing to ingest oo");
+                        println!("continuing to ingest oo");
                         self.mat[2] = self.mat[0].clone();
                         self.mat[3] = self.mat[1].clone();
                         self.mat[6] = self.mat[4].clone();
@@ -69,8 +69,11 @@ where
                 // whyyy does this seemingly very rational algorithm not work
                 // and the nonsense one DOES (mostly)
                 // i don't get it ;-;
+                // EDIT: i get it now :D
 
                 println!("{:?}", self.mat);
+
+                // continue;
 
                 let defined_oo = self.mat[5].clone() * self.mat[5].clone()
                     + self.mat[0].clone() * self.mat[0].clone()
@@ -187,6 +190,13 @@ where
                     + self.mat[7].clone();
                 let s_y1x1 = (n_y1x1 < 0.into()) ^ (d_y1x1 < 0.into());
 
+                let n_y0xoo = self.mat[1].clone();
+                let d_y0xoo = self.mat[5].clone();
+                let s_y0xoo = (n_y0xoo < 0.into()) ^ (d_y0xoo < 0.into());
+                let n_y0x1 = self.mat[1].clone() + self.mat[3].clone();
+                let d_y0x1 = self.mat[5].clone() + self.mat[7].clone();
+                let s_y0x1 = (n_y0x1 < 0.into()) ^ (d_y0x1 < 0.into());
+
                 let n_y2xoo = n_y2xoo.into_parts().1;
                 let d_y2xoo = d_y2xoo.into_parts().1;
                 let n_y2x1 = n_y2x1.into_parts().1;
@@ -195,6 +205,10 @@ where
                 let d_y1xoo = d_y1xoo.into_parts().1;
                 let n_y1x1 = n_y1x1.into_parts().1;
                 let d_y1x1 = d_y1x1.into_parts().1;
+                let n_y0xoo = n_y0xoo.into_parts().1;
+                let d_y0xoo = d_y0xoo.into_parts().1;
+                let n_y0x1 = n_y0x1.into_parts().1;
+                let d_y0x1 = d_y0x1.into_parts().1;
 
                 println!(
                     "asymp | x=oo {}{}/{}, x=1 {}{}/{}",
@@ -223,10 +237,25 @@ where
                     n_y1x1,
                     d_y1x1
                 );
+                println!(
+                    "at y=0 | x=oo {}{:?}/{:?}, x=1 {}{:?}/{:?}",
+                    if s_y0xoo { "-" } else { "" },
+                    n_y0xoo,
+                    d_y0xoo,
+                    if s_y0x1 { "-" } else { "" },
+                    n_y0x1,
+                    d_y0x1
+                );
 
                 // when y=2 and our abs is >= 2 (asymptote to the right)
-                if n_y2xoo.clone() >= d_y2xoo.clone() * 2u32
-                    && n_y2x1.clone() >= d_y2x1.clone() * 2u32
+                if (!s_axoo
+                    && an_xoo >= 2u32 * ad_xoo.clone()
+                    && !s_ax1
+                    && an_x1 >= 2u32 * ad_x1.clone())
+                    || (n_y2xoo.clone() >= d_y2xoo.clone() * 2u32
+                        && n_y2x1.clone() >= d_y2x1.clone() * 2u32
+                        && !s_y2xoo
+                        && !s_y2x1)
                 {
                     // egest
                     if self.mat[0].clone() % 2 == 0.into()
@@ -270,7 +299,6 @@ where
                     && n_y2x1.clone() < d_y2x1.clone() * 2u32
                     && n_y1xoo.clone() >= d_y1xoo
                     && n_y1x1.clone() >= d_y1x1.clone()
-                // || (!s_y2xoo && !s_y2x1 && s_y1xoo && s_y1x1))
                 {
                     // egest
                     self.mat[0] -= self.mat[4].clone();
@@ -293,12 +321,8 @@ where
                     // println!("egest drec");
                     return Some(Term::DRec);
                 }
-                // when y=1 and our abs is less than 1
-                // and this is also true for y=2
-                if n_y2xoo.clone() < d_y2xoo.clone()
-                    && n_y2x1.clone() < d_y2x1.clone()
-                    && n_y1xoo.clone() < d_y1xoo.clone()
-                    && n_y1x1.clone() < d_y1x1.clone()
+                // when y=1 and we're less than 1 but greater than 0
+                if n_y1xoo.clone() < d_y1xoo.clone() && n_y1x1.clone() < d_y1x1.clone() && !s_y1xoo && !s_y1x1
                 {
                     // egest
                     self.mat.swap(0, 4);
@@ -313,12 +337,10 @@ where
                     // println!("egest rec");
                     return Some(Term::Rec);
                 }
-                // when we're ALWAYS < 0
-                // and none of the other things apply
+                // when we're < 0 at 0
+                // and the asymptote is to the left of 0
                 // indicates that both the roots are negative
-                if s_y2xoo && s_y2x1 && s_y1xoo && s_y1x1
-                // && n_y2xoo.clone() < d_y2xoo.clone() * 2u32
-                // && n_y2x1.clone() < d_y2x1.clone() * 2u32
+                if s_y0xoo && s_y0x1 && s_axoo && s_ax1
                 {
                     // egest
                     // self.mat[0] = -self.mat[0].clone();
