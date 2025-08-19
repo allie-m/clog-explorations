@@ -247,7 +247,7 @@ where
                     d_y0x1
                 );
 
-                // when y=2 and our abs is >= 2 (asymptote to the right)
+                // when y=2 and the asymptote is to the right OR we're >= 2
                 if (!s_axoo
                     && an_xoo >= 2u32 * ad_xoo.clone()
                     && !s_ax1
@@ -292,13 +292,16 @@ where
                     // println!("egest ord");
                     return Some(Term::Ord);
                 }
-                // when y=2 and our abs is less than 2
-                //      either y=1 puts our abs >= 1 (don't wanna jump the gun on a /)
-                //      or there's an intervening asymptote (go for the positive root!!)
-                if n_y2xoo.clone() < d_y2xoo.clone() * 2u32
-                    && n_y2x1.clone() < d_y2x1.clone() * 2u32
-                    && n_y1xoo.clone() >= d_y1xoo
-                    && n_y1x1.clone() >= d_y1x1.clone()
+                // when the asymptote is to the left of 2 and y=2 is less than 2
+                // and the asymptote is to the right of 1 OR y=1 is >= 1
+                if ((s_axoo && s_ax1) // asymptote is < 2
+                    || (an_xoo < 2u32 * ad_xoo.clone() && an_x1 < 2u32 * ad_x1.clone()))
+                    // y=2 < 2
+                    && ((n_y2xoo.clone() < d_y2xoo.clone() * 2u32
+                        && n_y2x1.clone() < d_y2x1.clone() * 2u32)
+                        || (s_y2xoo && s_y2x1))
+                    // asymptote is right of 1 OR y=1 is >= 1
+                    && ((an_xoo >= ad_xoo && an_x1 >= ad_x1) || (n_y1xoo >= d_y1xoo && n_y1x1 >= d_y1x1))
                 {
                     // egest
                     self.mat[0] -= self.mat[4].clone();
@@ -322,7 +325,10 @@ where
                     return Some(Term::DRec);
                 }
                 // when y=1 and we're less than 1 but greater than 0
-                if n_y1xoo.clone() < d_y1xoo.clone() && n_y1x1.clone() < d_y1x1.clone() && !s_y1xoo && !s_y1x1
+                if n_y1xoo.clone() < d_y1xoo.clone()
+                    && n_y1x1.clone() < d_y1x1.clone()
+                    && !s_y1xoo
+                    && !s_y1x1
                 {
                     // egest
                     self.mat.swap(0, 4);
@@ -340,8 +346,7 @@ where
                 // when we're < 0 at 0
                 // and the asymptote is to the left of 0
                 // indicates that both the roots are negative
-                if s_y0xoo && s_y0x1 && s_axoo && s_ax1
-                {
+                if s_y0xoo && s_y0x1 && s_axoo && s_ax1 {
                     // egest
                     // self.mat[0] = -self.mat[0].clone();
                     self.mat[1] = -self.mat[1].clone();
@@ -354,9 +359,6 @@ where
                     self.mat[6] = -self.mat[6].clone();
                     return Some(Term::Neg);
                 }
-
-                // TODO: WHY DOES THIS EVEN WORK??????
-                // this feels like it shouldn't work
 
                 // if self.mat.iter().all(|a| *a <= 0.into()) {
                 //     println!("FLIPPING EVERYTHING!!!!");
